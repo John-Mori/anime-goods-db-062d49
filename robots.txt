@@ -1,2 +1,3 @@
 User-agent: *
-Disallow: /
+Allow: /
+Sitemap: https://john-mori.github.io/anime-goods-db-062d49/sitemap.xml
