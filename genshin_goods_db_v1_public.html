@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>原神 グッズDB v1.0</title>
+<style>
+  :root{
+    --jp:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+  }
+  /* LIGHT/DAY (single) — 学園アイドルマスター原神 グッズDB・同設計トーン */
+  :root{
+    --bg:#e9f2fb; --surface:#ffffff; --surface2:#eef4fb; --surface3:#e1eaf4;
+    --line:#dde7f1; --line2:#c7d6e5;
+    --ink:#26303f; --ink2:#4c5a6c; --muted:#7a8899; --faint:#a6b2c0;
+    --pink:#e5468f; --pink-ink:#c72e73; --pink-dim:#fce0ee; --pink-on:#ffffff;
+    --gold:#e0920f; --gold2:#ef7620; --star:#ffbf3d; --hero-on:#3a2600;
+    --have:#17a06a; --have-dim:#dff4ea; --want:#c1770f; --want-dim:#fbecd4;
+    --paimon:#e8d89a; --hotaru:#f0d060; --ayaka:#a8c8e8; --hutao:#d94a4a;
+    --raiden:#7a6fc8; --ganyu:#6a8fd0; --nahida:#7fc0a0; --yelan:#3f9a8a;
+    --keqing:#a878c8; --yae:#e08ab0; --furina:#6fb0d8; --zhongli:#b08838;
+    --ayato:#5a8fc0; --navia:#f0c860;
+    --hdr:rgba(233,242,251,.82); --barbg:#fbf1d6; --barln:#ecdba8;
+    --recobg:#fbf3da; --recoln:#ecdba8; --recoink:#9a6a00;
+    --usedbg:#eef4fb; --chsei-bg:#fbeecb; --chkot-bg:#fbf5c8;
+    --rowhave-ln:#a7dcc2; --have-ln:#a7dcc2; --want-ln:#e6c78e; --have-lite:#2fae7d;
+    --merc:#e60023; --merc-ink:#c11030;
+    --imgbg:#e8eff7;
+  }
+  /* テーマ切替は撤去。公式トーンの「昼の空」単一デザインに固定。 */
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--jp);color:var(--ink);background:var(--bg);
+    font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+  .wrap{max-width:760px;margin:0 auto;padding:0 0 72px}
+
+  /* ===== 動く昼の空背景（公式トーン・スクロールでパララックス） ===== */
+  .bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  /* ベース：青空→クリームのグラデ＋上部に陽の光（ゴールド）と下部に桜色の靄 */
+  .bg-base{position:absolute;inset:-2px;
+    background:
+      radial-gradient(130% 75% at 50% -14%, rgba(255,224,140,.75), transparent 55%),
+      radial-gradient(120% 80% at 88% 116%, rgba(255,170,205,.42), transparent 60%),
+      radial-gradient(95% 65% at 10% 4%, rgba(150,205,255,.62), transparent 55%),
+      linear-gradient(180deg,#bfe0fb 0%,#e4f0fb 42%,#fff6e8 100%)}
+  /* 雲：白いぼかしがゆっくり流れる（常時アニメ） */
+  .aurora{position:absolute;width:80vw;height:80vw;left:-10vw;top:-16vh;border-radius:50%;
+    background:radial-gradient(circle at 42% 42%, rgba(255,255,255,.6), rgba(255,244,214,.3) 45%, transparent 70%);
+    filter:blur(46px);animation:auroraDrift 30s ease-in-out infinite alternate;will-change:transform,opacity}
+  .aurora.b{left:auto;right:-18vw;top:auto;bottom:-22vh;width:72vw;height:72vw;
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.55), rgba(202,228,255,.28) 50%, transparent 70%);
+    animation-duration:40s;animation-direction:alternate-reverse}
+  /* 光の粒レイヤー（タイル）：スクロールで background-position をずらしパララックス。ゆらぎで明滅 */
+  .stars{position:absolute;inset:0;background-repeat:repeat}
+  .stars.s1{background-image:
+      radial-gradient(2.6px 2.6px at 20px 30px,rgba(255,190,90,.92) 45%,transparent 60%),
+      radial-gradient(2.2px 2.2px at 120px 80px,rgba(255,150,190,.85) 45%,transparent 60%),
+      radial-gradient(2px 2px at 70px 160px,rgba(255,214,120,.85) 45%,transparent 60%);
+    background-size:210px 210px;opacity:.55;animation:twinkle 5s ease-in-out infinite}
+  .stars.s2{background-image:
+      radial-gradient(1.8px 1.8px at 40px 60px,rgba(255,175,205,.8) 45%,transparent 60%),
+      radial-gradient(2.4px 2.4px at 160px 120px,rgba(255,200,100,.8) 45%,transparent 60%),
+      radial-gradient(1.6px 1.6px at 90px 200px,rgba(150,200,255,.75) 45%,transparent 60%);
+    background-size:290px 290px;opacity:.4;animation:twinkle 7s ease-in-out infinite .8s}
+  .stars.s3{background-image:
+      radial-gradient(3px 3px at 60px 90px,rgba(255,205,110,.7) 45%,transparent 60%),
+      radial-gradient(2px 2px at 210px 40px,rgba(255,160,195,.7) 45%,transparent 60%);
+    background-size:370px 370px;opacity:.32;animation:twinkle 9s ease-in-out infinite .4s}
+  @keyframes twinkle{0%,100%{opacity:.55}50%{opacity:.3}}
+  @keyframes auroraDrift{
+    0%{transform:translate3d(0,0,0) scale(1);opacity:.8}
+    100%{transform:translate3d(7vw,3vh,0) scale(1.12);opacity:1}}
+  @media (prefers-reduced-motion:reduce){
+    .aurora,.stars{animation:none !important}
+  }
+  .wrap{position:relative;z-index:1}
+
+  header{position:sticky;top:0;z-index:30;background:var(--hdr);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line2);padding:12px 14px 10px}
+  header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;
+    background:linear-gradient(90deg,var(--gold),var(--gold2),var(--pink))}
+  .brand{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .brand h1{font-size:17px;margin:0;letter-spacing:.02em;font-weight:800;
+    background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .brand h1::before{content:"✧ ";color:var(--star);-webkit-text-fill-color:var(--star)}
+  .brand .sub{font-size:11px;color:var(--gold);font-weight:700}
+  .brand .pr{margin-left:auto;font-size:10px;font-weight:800;color:#7a4a00;background:#ffe9b0;
+    border:1px solid #e0a83d;border-radius:4px;padding:2px 7px;letter-spacing:.04em;white-space:nowrap}
+  .countbar{display:flex;align-items:baseline;gap:6px;margin-top:8px}
+  .count-n{font-size:25px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;
+    background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .count-lbl{font-size:12px;color:var(--muted)}
+  .count-keep{margin-left:auto;font-size:10px;color:var(--faint);
+    border:1px solid var(--line2);border-radius:999px;padding:3px 8px;line-height:1.3}
+
+  .controls{padding:10px 14px 0}
+  .lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.05em;margin:2px 0 6px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+  .chip{border:1px solid var(--line2);background:var(--surface);color:var(--ink2);
+    font-family:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:999px;
+    cursor:pointer;display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .chip .c{font-size:10.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .chip[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold),var(--gold2));
+    border-color:var(--gold);color:var(--hero-on)}
+  .chip[aria-pressed="true"] .c{color:var(--hero-on);opacity:.7}
+  .chip.char[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:var(--pink-on)}
+
+  .typewrap{margin-bottom:4px}
+  .tgroup{margin-bottom:10px}
+  .tglabel{font-size:10.5px;font-weight:800;color:var(--gold);letter-spacing:.04em;
+    margin:0 0 6px;display:flex;align-items:center;gap:8px}
+  .tglabel::before{content:"✦";color:var(--star);font-size:10px}
+  .tglabel .gn{color:var(--faint);font-weight:700}
+  .tglabel::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+
+  .seg{display:flex;background:var(--surface);border:1px solid var(--line2);border-radius:10px;padding:3px;gap:3px;margin:4px 0}
+  .seg button{flex:1;border:0;background:transparent;font-family:inherit;font-size:12px;font-weight:700;
+    color:var(--muted);padding:7px 4px;border-radius:7px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--surface3);color:var(--ink)}
+
+  details.adv,details.prog{margin:6px 0 0;border-top:1px solid var(--line);padding-top:10px}
+  details.adv>summary{list-style:none;cursor:pointer;font-size:12.5px;font-weight:700;
+    color:var(--pink-ink);display:flex;align-items:center;gap:6px}
+  details.adv>summary::-webkit-details-marker,details.prog>summary::-webkit-details-marker{display:none}
+  details.adv>summary .tw,details.prog>summary .tw{transition:transform .15s;display:inline-block}
+  details.adv[open]>summary .tw,details.prog[open]>summary .tw{transform:rotate(90deg)}
+  .advbody{padding:10px 0 2px}
+  .advgroup{margin-bottom:12px}
+  .chip.alt[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:var(--pink-on)}
+
+  details.prog>summary{list-style:none;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--have);
+    display:flex;align-items:center;gap:6px}
+  .progbody{padding:12px 0 2px}
+  .prow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .prow .pn{font-size:11.5px;color:var(--ink2);width:88px;flex:none}
+  .pbar{flex:1;height:7px;background:var(--surface2);border-radius:999px;overflow:hidden}
+  .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--have),var(--have-lite));border-radius:999px;transition:width .25s}
+  .prow .pf{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums;width:46px;text-align:right;flex:none}
+  .prog-note{font-size:10px;color:var(--faint);margin-top:4px;line-height:1.4}
+
+  .sortrow{display:flex;align-items:center;gap:8px;padding:10px 14px 4px;position:sticky;top:0;background:var(--bg)}
+  .sortrow .lbl{margin:0}
+  select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);
+    background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:7px 9px;flex:1;max-width:230px}
+  .clearbtn{margin-left:auto;border:0;background:none;color:var(--muted);font-family:inherit;
+    font-size:12px;text-decoration:underline;cursor:pointer;padding:4px}
+  .reco-note{font-size:10.5px;color:var(--recoink);background:var(--recobg);border:1px solid var(--recoln);
+    border-radius:7px;padding:6px 10px;margin:6px 14px 0;line-height:1.4}
+  .edit-note{font-size:10.5px;color:var(--pink-ink);background:var(--pink-dim);border:1px solid var(--pink);
+    border-radius:7px;padding:6px 10px;margin:6px 14px 0;line-height:1.5}
+  .noimg-filter{margin-top:6px;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--pink);
+    background:var(--surface);color:var(--pink-ink);font-family:inherit;font-size:11px;font-weight:700;
+    padding:5px 10px;border-radius:999px;cursor:pointer}
+  .noimg-filter[aria-pressed="true"]{background:var(--pink);color:var(--pink-on)}
+  .noimg-filter #noimgCount,.noimg-filter #queueCount{font-variant-numeric:tabular-nums;opacity:.85}
+  .noimg-filter.qbtn{margin-left:6px;border-color:var(--gold);color:var(--gold)}
+  .noimg-filter.qbtn[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--hero-on)}
+  /* 新商品候補カード */
+  .qnote{font-size:11px;color:var(--gold);background:var(--recobg);border:1px solid var(--recoln);
+    border-radius:8px;padding:8px 12px;margin:0 12px 8px;line-height:1.5}
+  .qcard{background:var(--surface);border:1px solid var(--gold);border-radius:12px;padding:12px 13px;margin-bottom:9px;
+    display:grid;grid-template-columns:96px 1fr;gap:12px}
+  .qcard.dim{opacity:.5}
+  .qcard .qbody{min-width:0}
+  .qcard .qnm{font-size:14px;font-weight:700;line-height:1.4;color:var(--ink)}
+  .qcard .qmeta{font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:3px 10px;margin-top:6px}
+  .qcard .qbadges{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+  .qcard .qb{font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px;line-height:1.2}
+  .qb.gd{background:var(--barbg);color:var(--gold)} .qb.mt{background:var(--pink-dim);color:var(--pink-ink)}
+  .qb.so{background:var(--want-dim);color:var(--want)}
+  .qcard .qact{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+  .qcard .qact button{font-family:inherit;font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:8px;cursor:pointer;border:1px solid var(--line2);background:var(--surface2);color:var(--ink2)}
+  .qcard .qact .ap{border-color:var(--have-ln);color:var(--have);background:var(--have-dim)}
+  .qcard .qact .mg{border-color:var(--pink);color:var(--pink-ink);background:var(--pink-dim)}
+  .qcard .qact .rj{border-color:var(--want-ln);color:var(--want);background:var(--want-dim)}
+  .qcard .qdon{font-size:11px;font-weight:800;align-self:center}
+  @media (min-width:700px){ .list.qmode{grid-template-columns:1fr!important} }
+
+  .list{padding:4px 12px 0}
+  /* ★v2.6: PC/タブレット幅では一覧を複数列グリッドに（縦1列である必要がないため横に並べる） */
+  @media (min-width:700px){
+    .wrap{max-width:920px}
+    .list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 14px;align-items:start}
+    .list .row{margin-bottom:0}
+    .list .empty{grid-column:1/-1}
+  }
+  @media (min-width:1100px){
+    .wrap{max-width:1300px}
+    .list{grid-template-columns:repeat(3,1fr)}
+  }
+  /* ★v2.0: カード2カラム（左=画像列 / 右=本文） */
+  .row{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:9px;
+    position:relative;display:grid;grid-template-columns:96px 1fr;gap:12px}
+  .row.have{border-color:var(--rowhave-ln);background:linear-gradient(0deg,var(--have-dim),var(--surface) 60%)}
+  .imgcol{width:96px}
+  .thumb{width:96px;height:96px;border-radius:10px;background:var(--imgbg);border:1px solid var(--line2);
+    object-fit:cover;display:block;cursor:pointer}
+  .imgwrap{position:relative;width:96px;height:96px}
+  .imgwrap .more{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.72);color:#fff;
+    font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;line-height:1.2;pointer-events:none}
+  .imgwrap .srclab{position:absolute;left:4px;top:4px;background:rgba(234,161,0,.92);color:#2a1c04;
+    font-size:8.5px;font-weight:800;border-radius:5px;padding:1px 5px;line-height:1.3;pointer-events:none;letter-spacing:.02em}
+  .noimg{width:96px;height:96px;border-radius:10px;border:1px solid var(--line2);
+    background:linear-gradient(160deg,#eaf3fb,#fbf1e0);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted)}
+  .noimg .ni-ic{font-size:26px;line-height:1;opacity:.75}
+  .noimg .ni-tx{font-size:8.5px;font-weight:700;letter-spacing:.04em;color:var(--faint)}
+  .rbody{min-width:0}
+  .row .top{display:flex;gap:8px;align-items:flex-start}
+  .row .nm{font-size:14px;font-weight:700;line-height:1.4;flex:1;min-width:0;color:var(--ink)}
+  .row .nm .var{display:inline-block;font-size:11px;font-weight:700;color:var(--pink-ink);
+    background:var(--pink-dim);border-radius:5px;padding:1px 6px;margin-left:4px;vertical-align:1px}
+  .row .nm .ch{display:inline-block;font-size:10px;font-weight:800;border-radius:5px;padding:1px 6px;margin-right:5px;vertical-align:1px;color:#26303f;border:1px solid #c7d6e5}
+  .ch.paimon{background:color-mix(in srgb,var(--paimon) 18%,#fff);border-color:color-mix(in srgb,var(--paimon) 55%,#999)}
+  .ch.hotaru{background:color-mix(in srgb,var(--hotaru) 18%,#fff);border-color:color-mix(in srgb,var(--hotaru) 55%,#999)}
+  .ch.ayaka{background:color-mix(in srgb,var(--ayaka) 18%,#fff);border-color:color-mix(in srgb,var(--ayaka) 55%,#999)}
+  .ch.hutao{background:color-mix(in srgb,var(--hutao) 18%,#fff);border-color:color-mix(in srgb,var(--hutao) 55%,#999)}
+  .ch.raiden{background:color-mix(in srgb,var(--raiden) 18%,#fff);border-color:color-mix(in srgb,var(--raiden) 55%,#999)}
+  .ch.ganyu{background:color-mix(in srgb,var(--ganyu) 18%,#fff);border-color:color-mix(in srgb,var(--ganyu) 55%,#999)}
+  .ch.nahida{background:color-mix(in srgb,var(--nahida) 18%,#fff);border-color:color-mix(in srgb,var(--nahida) 55%,#999)}
+  .ch.yelan{background:color-mix(in srgb,var(--yelan) 18%,#fff);border-color:color-mix(in srgb,var(--yelan) 55%,#999)}
+  .ch.keqing{background:color-mix(in srgb,var(--keqing) 18%,#fff);border-color:color-mix(in srgb,var(--keqing) 55%,#999)}
+  .ch.yae{background:color-mix(in srgb,var(--yae) 18%,#fff);border-color:color-mix(in srgb,var(--yae) 55%,#999)}
+  .ch.furina{background:color-mix(in srgb,var(--furina) 18%,#fff);border-color:color-mix(in srgb,var(--furina) 55%,#999)}
+  .ch.zhongli{background:color-mix(in srgb,var(--zhongli) 18%,#fff);border-color:color-mix(in srgb,var(--zhongli) 55%,#999)}
+  .ch.ayato{background:color-mix(in srgb,var(--ayato) 18%,#fff);border-color:color-mix(in srgb,var(--ayato) 55%,#999)}
+  .ch.navia{background:color-mix(in srgb,var(--navia) 18%,#fff);border-color:color-mix(in srgb,var(--navia) 55%,#999)}
+  .tag{flex:none;font-size:11px;font-weight:800;color:var(--ink2);background:var(--surface3);
+    border-radius:6px;padding:4px 8px;white-space:nowrap}
+  .ftag{font-size:10px;font-weight:700;color:var(--gold);background:var(--barbg);border-radius:5px;padding:2px 6px;margin-left:5px}
+
+  .prices{display:flex;margin:10px 0 8px;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+  .pcell{flex:1;padding:7px 10px}
+  .pcell+.pcell{border-left:1px solid var(--line2)}
+  .pcell .pl{font-size:10px;color:var(--muted);font-weight:700}
+  .pcell .pv{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:1px;color:var(--ink)}
+  .pcell .pv.none{color:var(--faint);font-weight:600}
+  .pcell.used{background:var(--usedbg)}
+  .pcell.ref .pv{font-size:13px;color:var(--ink2);font-weight:700}
+
+  .meta{font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px}
+  .badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+  .b{font-size:10.5px;font-weight:700;border-radius:5px;padding:3px 7px;line-height:1.2}
+  .b.route{background:var(--surface3);color:var(--ink2)}
+  .b.live{background:var(--pink-dim);color:var(--pink-ink)}
+  .b.kuji{background:var(--barbg);color:var(--gold)}
+  .b.cat{background:var(--surface3);color:var(--muted)}
+  .b.hold{background:var(--want-dim);color:var(--want)}
+  .b.reserve{background:var(--gold);color:#3a2600;box-shadow:0 1px 4px rgba(224,146,15,.35)}
+  .b.newin{background:var(--pink-dim);color:var(--pink-ink);border:1px solid var(--pink-ink)}
+
+  .actions{display:flex;align-items:center;gap:7px;margin-top:11px;flex-wrap:wrap}
+  .own{border:1px solid var(--line2);background:var(--surface2);color:var(--ink2);
+    font-family:inherit;font-size:11.5px;font-weight:700;padding:6px 10px;border-radius:8px;cursor:pointer}
+  .own[aria-pressed="true"]{background:var(--have-dim);border-color:var(--have-ln);color:var(--have)}
+  .own.want[aria-pressed="true"]{background:var(--want-dim);border-color:var(--want-ln);color:var(--want)}
+  .actR{margin-left:auto;display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .cta{display:inline-flex;align-items:center;gap:5px;background:var(--pink);
+    color:var(--pink-on);font-size:12px;font-weight:800;text-decoration:none;padding:7px 12px;border-radius:8px}
+  .cta:after{content:"↗";font-size:11px}
+  .cta.sg{background:#e50012;color:#fff;font-weight:800;letter-spacing:.06em}
+  .cta.af{font-size:11px}
+  .cta.af.amz{background:#ff9900;color:#111;border-color:#e88a00}
+  .cta.af.rak{background:#bf0000;color:#fff;border-color:#a00}
+  .cta.af.yah{background:#ff0033;color:#fff;border-color:#e00}
+  .cta.sg:hover{background:#c30010}
+  .cta.brand{font-weight:800}
+  .cta.brand:hover{filter:brightness(.92)}
+  .cta.sg:after,.cta.brand:after{content:none}
+  .cta.mercari{background:transparent;border:1px solid var(--merc);color:var(--merc-ink);font-weight:700}
+  .cta.ghost{background:transparent;border:1px solid var(--line2);color:var(--muted);font-weight:700}
+  .cta.ghost .dbgtag{font-size:8.5px;font-weight:800;background:var(--line2);color:var(--bg);
+    border-radius:3px;padding:1px 4px;margin-left:5px}
+  .clicks{font-size:10px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+  /* ★v2.0 編集パネル（DEBUG-ONLY） */
+  .editpanel{margin-top:10px;padding:9px 10px;border:1px dashed var(--pink);border-radius:9px;background:var(--pink-dim)}
+  .editpanel .eh{font-size:10px;font-weight:800;color:var(--pink-ink);letter-spacing:.04em;margin-bottom:6px}
+  .editrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .editrow label{font-size:10.5px;color:var(--ink2);font-weight:700;width:74px;flex:none}
+  .editrow input{flex:1;min-width:0;font-family:inherit;font-size:11.5px;color:var(--ink);
+    background:var(--surface);border:1px solid var(--line2);border-radius:6px;padding:5px 7px}
+  .editrow .mini{border:1px solid var(--line2);background:var(--surface2);color:var(--ink2);
+    font-family:inherit;font-size:10.5px;font-weight:700;padding:5px 8px;border-radius:6px;cursor:pointer;text-decoration:none;flex:none}
+
+  .empty{text-align:center;color:var(--muted);padding:48px 20px;font-size:13px;grid-column:1/-1}
+  .empty b{color:var(--ink);display:block;font-size:15px;margin-bottom:4px}
+  .foot{font-size:10px;color:var(--faint);padding:18px 16px 0;line-height:1.6}
+  .foot .foot-legal{font-size:10.5px;line-height:1.75}
+  .foot .foot-legal strong{color:var(--ink);font-weight:800}
+  .foot .foot-meta{margin-top:8px;padding-top:8px;border-top:1px solid var(--line2);font-size:9.5px;opacity:.8}
+  .themebtn{margin-left:8px;border:1px solid var(--line2);background:var(--surface);color:var(--ink2);
+    font-family:inherit;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:4px;line-height:1.2}
+  .themebtn:active{transform:scale(.96)}
+  .themebtn.exp{border-color:var(--pink);color:var(--pink-ink)}
+
+  /* ★v2.0 ライトボックス */
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.85);display:none;
+    align-items:center;justify-content:center;flex-direction:column;padding:12px}
+  .lb.open{display:flex}
+  .lb img{max-width:96vw;max-height:88vh;object-fit:contain;border-radius:8px;background:#111}
+  .lb .lbcap{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:25;color:#f0f0f0;font-size:11px;text-align:center;max-width:70vw;line-height:1.35;background:rgba(0,0,0,.5);padding:4px 12px;border-radius:8px}
+  .lb .lbnav{position:absolute;top:0;bottom:0;z-index:20;display:flex;align-items:center;
+    width:16vw;min-width:64px;max-width:120px;background:transparent;color:#fff;border:0;padding:0;
+    font-size:40px;line-height:1;cursor:pointer;font-family:inherit;text-shadow:0 2px 10px rgba(0,0,0,.9);
+    -webkit-tap-highlight-color:transparent;transition:background .15s}
+  .lb .lbnav:hover{background:rgba(255,255,255,.10)}
+  .lb .lbnav:active{background:rgba(255,255,255,.20)}
+  .lb .lbprev{left:0;justify-content:flex-start;padding-left:16px}
+  .lb .lbnext{right:0;justify-content:flex-end;padding-right:16px}
+  .lb .lbclose{position:absolute;top:14px;right:14px;z-index:30;background:rgba(255,255,255,.14);color:#fff;border:0;
+    font-size:20px;width:42px;height:42px;border-radius:10px;cursor:pointer}
+  .lb .lbdel{position:absolute;top:14px;left:14px;z-index:30;background:var(--merc);color:#fff;border:0;
+    font-size:12px;font-weight:800;padding:9px 12px;border-radius:10px;cursor:pointer;font-family:inherit;display:none}
+  .lb.editing .lbdel{display:block}
+  .lb .lbcount{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:25;color:#ccc;font-size:12px;
+    font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="bgfx" aria-hidden="true">
+  <div class="bg-base"></div>
+  <div class="aurora"></div>
+  <div class="aurora b"></div>
+  <div class="stars s1" id="stars1"></div>
+  <div class="stars s2" id="stars2"></div>
+  <div class="stars s3" id="stars3"></div>
+</div>
+<div class="wrap">
+  <header>
+    <div class="brand"><h1>原神 グッズDB</h1><span class="sub">v1.0</span><span class="pr">広告・PR</span>
+      
+      
+    </div>
+    <div class="countbar">
+      <span class="count-n" id="cn">96</span>
+      <span class="count-lbl" id="cl">件表示 / 全96件</span>
+      <span class="count-keep">並べ替えても件数は変わらない</span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="lbl">キャラ（複数選択で重ねて表示）</div>
+    <div class="chips" id="charChips"></div>
+
+    <div class="lbl" style="margin-top:10px">種別（ノイズ排除のコア）</div>
+    <div class="typewrap" id="typeWrap"></div>
+
+    <details class="prog" id="progDetails">
+      <summary><span class="tw">▸</span>コレクション進捗（持ってる記録）</summary>
+      <div class="progbody" id="progBody"></div>
+      <div class="prog-note">「持ってる」を押すと記録される。あと何種かが見えるだけ — 買い煽りはしない。※この端末に保存（localStorage）。</div>
+    </details>
+
+    <details class="adv">
+      <summary><span class="tw">▸</span>詳細フィルタ（所持状況・経路・ライブ・くじ・カテゴリ）</summary>
+      <div class="advbody">
+        <div class="advgroup"><div class="lbl">所持状況</div>
+          <div class="seg" id="ownSeg">
+            <button data-own="" aria-pressed="true">すべて</button>
+            <button data-own="want">欲しい</button>
+            <button data-own="none">未所持</button>
+            <button data-own="have">持ってる</button>
+          </div>
+        </div>
+        <div class="advgroup"><div class="lbl">フィギュア細分類</div><div class="chips" id="ftChips"></div></div>
+        <div class="advgroup"><div class="lbl">入手経路 route</div><div class="chips" id="routeChips"></div></div>
+        <div class="advgroup"><div class="lbl">ライブ live</div><div class="chips" id="liveChips"></div></div>
+        <div class="advgroup"><div class="lbl">くじ kuji</div><div class="chips" id="kujiChips"></div></div>
+        <div class="advgroup"><div class="lbl">カテゴリ category</div><div class="chips" id="catChips"></div></div>
+      </div>
+    </details>
+  </div>
+
+  <div class="sortrow">
+    <span class="lbl">並べ替え</span>
+    <select id="sortSel">
+      <option value="reco">おすすめ順（予約・新着を優先）</option>
+      <option value="rel_desc">発売日（新しい順）</option>
+      <option value="rel_asc">発売日（古い順）</option>
+      <option value="price_asc">価格（安い順）</option>
+      <option value="price_desc">価格（高い順）</option>
+      <option value="name">名前順</option>
+    </select>
+    <button class="clearbtn" id="clearBtn">条件クリア</button>
+  </div>
+  <div class="reco-note" id="recoNote">おすすめ順＝🔜予約受付・✨新着（発売60日以内）を上に表示。同順ではクリック数順（各カードのボタンを押すと+1）。予約・発売直後はアフィリで購入・予約しやすい狙い目。</div>
+  <div class="edit-note" id="editNote" style="display:none">🔧 編集モード：画像タップで拡大→🗑で不要画像を削除。各カードの編集欄に駿河屋URL/メルカリURL/中古価格を貼れる。変更は「⬇ 裁定を書き出す」で manual_overrides.json に出力→ビルドで恒久反映。
+    <button class="noimg-filter" id="noimgBtn" aria-pressed="false">🖼 画像なしのみ表示 <span id="noimgCount"></span></button>
+    <button class="noimg-filter qbtn" id="queueBtn" aria-pressed="false">📥 新商品候補 <span id="queueCount"></span></button></div>
+
+  <div class="list" id="list"></div>
+  <div class="foot">
+    <div class="foot-legal">
+      <strong>【広告について】</strong>本サイトはアフィリエイトプログラム（Amazonアソシエイト・楽天アフィリエイト・バリューコマース等）を利用しており、
+      商品リンクを経由した購入により当サイトが収益を得る場合があります。<br>
+      <strong>【価格・在庫について】</strong>掲載の価格・発売日・在庫状況は各取得時点の情報です。最新かつ正確な情報は必ず各販売サイト・公式サイトでご確認ください。
+      新品定価は参考表示で、中古価格とは別物です。<br>
+      <strong>【画像について】</strong>画像は各公式ショップ・メーカーの商品ページを参照して表示しており、当サイトに複製・保存はしていません。
+      権利は各権利者に帰属します。<br>
+      <strong>【免責】</strong>掲載情報の正確性・完全性について保証するものではなく、本サイトの情報により生じた損害について責任を負いかねます。
+      プライズ品・イベント限定品・完売品など新品での購入ができない商品も情報として収録しています。<br>
+      <strong>【プライバシー】</strong>本サイトはアクセス解析およびアフィリエイトのためにCookieを使用する場合があります。ブラウザ設定で無効化できます。
+      当サイトは個人情報の入力を求めません。<br>
+      <strong>【権利表記】</strong>作品名・キャラクター名・商品名は各権利者の商標または登録商標です。本サイトは非公式のファンによる情報サイトです。
+    </div>
+    <div class="foot-meta">データ生成: 2026-07-07 ／ 画像公開モード: hotlink</div>
+  </div>
+</div>
+
+<!-- ★v2.0 ライトボックス -->
+<div class="lb" id="lb">
+  <button class="lbclose" id="lbClose" aria-label="閉じる">✕</button>
+  <button class="lbdel" id="lbDel">🗑 この画像を削除</button>
+  <button class="lbnav lbprev" id="lbPrev" aria-label="前へ">‹</button>
+  <img id="lbImg" alt="商品画像">
+  <button class="lbnav lbnext" id="lbNext" aria-label="次へ">›</button>
+  <div class="lbcap" id="lbCap"></div>
+  <div class="lbcount" id="lbCount"></div>
+</div>
+
+<script>
+const IMG_PUBLIC = "hotlink"; // "hotlink"=画像表示 / "off"=公開ビルドで画像非表示（編集モードでは常に表示）
+
+// ===== 背景パララックス：スクロール量に応じて星レイヤーを別速度でずらす（奥行き） =====
+// スクロールは「ユーザー操作起因の動き」なので常時有効。自律アニメ（オーロラ/明滅）だけを
+// CSSの @media prefers-reduced-motion で抑制する。
+(function(){
+  const s1=document.getElementById("stars1"), s2=document.getElementById("stars2"), s3=document.getElementById("stars3");
+  let raf=0;
+  function apply(){
+    raf=0;
+    const y=window.scrollY||document.documentElement.scrollTop||0;
+    // 近い層ほど速く、遠い層ほど遅く（背景なので下方向へずらす＝上へ流れる視差）
+    if(s1) s1.style.backgroundPositionY = (y*0.28)+"px";
+    if(s2) s2.style.backgroundPositionY = (y*0.16)+"px";
+    if(s3) s3.style.backgroundPositionY = (y*0.09)+"px";
+  }
+  window.addEventListener("scroll", function(){
+    // 可視時は requestAnimationFrame で滑らかに、非可視/未対応時は直接反映（確実に動く）
+    if(document.hidden || !window.requestAnimationFrame){ apply(); return; }
+    if(!raf){ raf=requestAnimationFrame(apply); }
+  }, {passive:true});
+  apply();
+})();
+
+const DATA = [{"character":"神里綾華","type":"figure","figure_type":null,"name":"原神 神里綾華・白鷺氷華Ver. 1/7スケール 完成品フィギュア（APEX）","variant":null,"release":"2024-09-01","shop":"APEX","price_new":24200,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://prtimes.jp/main/html/rd/p/000001622.000025615.html","surugaya_url":null,"mercari_url":null,"official_url":"https://prtimes.jp/main/html/rd/p/000001622.000025615.html","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"神里綾華","type":"figure","figure_type":null,"name":"原神 HELLO! GOOD SMILE 神里綾華","variant":null,"release":"2026-03-01","shop":"グッドスマイル","price_new":2000,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.goodsmile.com/ja/product/1139371/","surugaya_url":null,"mercari_url":null,"official_url":"https://www.goodsmile.com/ja/product/1139371/","image_url":"https://houzero-goods.com/wp-content/uploads/2025/09/gen-hello-good-smile-kamisato-yoyaku11.png","images":["https://houzero-goods.com/wp-content/uploads/2025/09/gen-hello-good-smile-kamisato-yoyaku11.png"],"flag":"hold","_images":["https://houzero-goods.com/wp-content/uploads/2025/09/gen-hello-good-smile-kamisato-yoyaku11.png"]},{"character":"神里綾華","type":"plush","figure_type":null,"name":"原神 ちびぐるみ Vol.2（神里綾華）","variant":null,"release":null,"shop":"HAKUTEA","price_new":2300,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/2299","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/2299","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/Doll/875473453503_06.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/Doll/875473453503_06.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/Doll/875473453503_06.jpg"]},{"character":"神里綾華","type":"acrylic_stand","figure_type":null,"name":"原神 コスチュームシリーズ アクリルスタンド（神里綾華）","variant":null,"release":null,"shop":"HAKUTEA","price_new":1400,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/185","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/185","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"神里綾華","type":"figure","figure_type":null,"name":"原神 稲妻戦場の栄光フィギュア（神里綾華・ランダム単品）","variant":null,"release":null,"shop":"HAKUTEA","price_new":2000,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/1430","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/1430","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"神里綾人","type":"figure","figure_type":null,"name":"原神 HELLO! GOOD SMILE 神里綾人","variant":null,"release":"2026-03-01","shop":"グッドスマイル","price_new":2000,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.goodsmile.com/en/product/1139370/HELLO+GOOD+SMILE+Ayato+Kamisato","surugaya_url":null,"mercari_url":null,"official_url":"https://www.goodsmile.com/en/product/1139370/HELLO+GOOD+SMILE+Ayato+Kamisato","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"神里綾人","type":"plush","figure_type":null,"name":"原神 甘い夢のささやき ぬいぐるみ 神里綾人","variant":null,"release":null,"shop":"HAKUTEA","price_new":2850,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/2626","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/2626","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/979067168404_01.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/979067168404_01.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/979067168404_01.jpg"]},{"character":"神里綾人","type":"acrylic_stand","figure_type":null,"name":"原神 稲妻シリーズ アクリルスタンド 神里綾人","variant":null,"release":null,"shop":"HAKUTEA","price_new":1400,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/142","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/142","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/650572975162_01.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/650572975162_01.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/650572975162_01.jpg"]},{"character":"神里綾人","type":"plush","figure_type":null,"name":"原神 ちびぐるみ vol.6 神里綾人","variant":null,"release":"2023-01-19","shop":"バンダイ","price_new":null,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.bandaispirits.co.jp/products/search/detail.php?prd_id=2632441&grp_id=10000","surugaya_url":null,"mercari_url":null,"official_url":"https://www.bandaispirits.co.jp/products/search/detail.php?prd_id=2632441&grp_id=10000","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"フリーナ","type":"figure","figure_type":null,"name":"原神 フリーナ・甘い午後の讃美歌 ちびキャラフィギュア（APEX）","variant":null,"release":"2026-02-28","shop":"APEX","price_new":7700,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://prtimes.jp/main/html/rd/p/000002805.000025615.html","surugaya_url":null,"mercari_url":null,"official_url":"https://prtimes.jp/main/html/rd/p/000002805.000025615.html","image_url":"https://prcdn.freetls.fastly.net/release_image/25615/2805/25615-2805-66608ecd61fd721e00991dee108d2a99-800x534.jpg","images":["https://prcdn.freetls.fastly.net/release_image/25615/2805/25615-2805-66608ecd61fd721e00991dee108d2a99-800x534.jpg"],"flag":"hold","_images":["https://prcdn.freetls.fastly.net/release_image/25615/2805/25615-2805-66608ecd61fd721e00991dee108d2a99-800x534.jpg"]},{"character":"フリーナ","type":"figure","figure_type":null,"name":"原神 Wondrous Travels Series フリーナ（デフォルメフィギュア）","variant":null,"release":"2026-06-30","shop":"グッドスマイル","price_new":5600,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.goodsmile.com/en/product/1139822/","surugaya_url":null,"mercari_url":null,"official_url":"https://www.goodsmile.com/en/product/1139822/","image_url":"https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/1139822/s1iA5bB7fJgukPRKvtrYMpS2c3G8N6Lw.jpg","images":["https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/1139822/s1iA5bB7fJgukPRKvtrYMpS2c3G8N6Lw.jpg"],"flag":"hold","_images":["https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/1139822/s1iA5bB7fJgukPRKvtrYMpS2c3G8N6Lw.jpg"]},{"character":"甘雨","type":"figure","figure_type":null,"name":"原神 甘雨 循々守月Ver. 1/7スケール 完成品フィギュア（APEX TOYS）","variant":null,"release":"2023-02-01","shop":"APEX TOYS","price_new":17800,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.sodachi-toys.jp/products/detail/3454","surugaya_url":null,"mercari_url":null,"official_url":"https://www.sodachi-toys.jp/products/detail/3454","image_url":"https://asset.watch.impress.co.jp/img/hbw/docs/1361/395/1_l.jpg","images":["https://asset.watch.impress.co.jp/img/hbw/docs/1361/395/1_l.jpg"],"flag":"hold","_images":["https://asset.watch.impress.co.jp/img/hbw/docs/1361/395/1_l.jpg"]},{"character":"甘雨","type":"figure","figure_type":null,"name":"原神 ちっちゃい甘雨 完成品フィギュア（APEX）","variant":null,"release":"2025-12-01","shop":"APEX","price_new":6600,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://prtimes.jp/main/html/rd/p/000002603.000025615.html","surugaya_url":null,"mercari_url":null,"official_url":"https://prtimes.jp/main/html/rd/p/000002603.000025615.html","image_url":"https://prcdn.freetls.fastly.net/release_image/25615/2603/25615-2603-e54fd63fa4ff7895c899e04240b2f6cd-800x534.jpg","images":["https://prcdn.freetls.fastly.net/release_image/25615/2603/25615-2603-e54fd63fa4ff7895c899e04240b2f6cd-800x534.jpg"],"flag":"hold","_images":["https://prcdn.freetls.fastly.net/release_image/25615/2603/25615-2603-e54fd63fa4ff7895c899e04240b2f6cd-800x534.jpg"]},{"character":"甘雨","type":"plush","figure_type":null,"name":"原神 大きくなったちびぐるみ ～魈・甘雨～","variant":null,"release":"2022-12-21","shop":"バンプレスト","price_new":null,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://bsp-prize.jp/item/2623118/","surugaya_url":null,"mercari_url":null,"official_url":"https://bsp-prize.jp/item/2623118/","image_url":null,"images":[],"flag":"hold","_dead_image":"https://bsp-prize.jp/files/%E5%85%B1%E6%9C%89%E3%83%95%E3%82%A9%E3%83%AB%E3%83%80/item/2022.12/2623118.jpg","_images":[]},{"character":"甘雨","type":"acrylic_stand","figure_type":null,"name":"原神 璃月港シリーズ キャラアクリルスタンド 甘雨","variant":null,"release":null,"shop":"miHoYo","price_new":1600,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://store.shopping.yahoo.co.jp/facewhitestores/p016-0101-00538.html","surugaya_url":null,"mercari_url":null,"official_url":"https://store.shopping.yahoo.co.jp/facewhitestores/p016-0101-00538.html","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"蛍","type":"figure","figure_type":null,"name":"原神 ねんどろいど 旅人（蛍）","variant":null,"release":"2022-07-01","shop":"グッドスマイル","price_new":5800,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.goodsmile.info/ja/product/11782/","surugaya_url":null,"mercari_url":null,"official_url":"https://www.goodsmile.info/ja/product/11782/","image_url":"https://images.goodsmile.info/cgm/images/product/20210914/11782/89866/large/087a785d94dc13bb25371a77284f3ad8.jpg","images":["https://images.goodsmile.info/cgm/images/product/20210914/11782/89866/large/087a785d94dc13bb25371a77284f3ad8.jpg"],"flag":"hold","_images":["https://images.goodsmile.info/cgm/images/product/20210914/11782/89866/large/087a785d94dc13bb25371a77284f3ad8.jpg"]},{"character":"蛍","type":"figure","figure_type":null,"name":"原神 蛍 1/7スケール 完成品フィギュア（コトブキヤ）","variant":null,"release":"2023-09-27","shop":"コトブキヤ","price_new":18480,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://hobby.watch.impress.co.jp/docs/news/1533939.html","surugaya_url":null,"mercari_url":null,"official_url":"https://hobby.watch.impress.co.jp/docs/news/1533939.html","image_url":"https://asset.watch.impress.co.jp/img/hbw/docs/1533/939/001_l.jpg","images":["https://asset.watch.impress.co.jp/img/hbw/docs/1533/939/001_l.jpg"],"flag":"hold","_images":["https://asset.watch.impress.co.jp/img/hbw/docs/1533/939/001_l.jpg"]},{"character":"蛍","type":"figure","figure_type":null,"name":"原神 ねんどろいど 旅人（蛍）【再販】","variant":null,"release":"2026-12-01","shop":"グッドスマイル","price_new":6900,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://hobby.dengeki.com/news/3036372/","surugaya_url":null,"mercari_url":null,"official_url":"https://hobby.dengeki.com/news/3036372/","image_url":"https://hobby.dengeki.com/ss/hobby/2026/07/06_psBJ43UhhgRGj9TAH-BHKlsI8upQFb2w_kvMcz6GsMXP8sUcZlHwDAHU6CQl4MK93.jpg","images":["https://hobby.dengeki.com/ss/hobby/2026/07/06_psBJ43UhhgRGj9TAH-BHKlsI8upQFb2w_kvMcz6GsMXP8sUcZlHwDAHU6CQl4MK93.jpg"],"flag":"hold","_images":["https://hobby.dengeki.com/ss/hobby/2026/07/06_psBJ43UhhgRGj9TAH-BHKlsI8upQFb2w_kvMcz6GsMXP8sUcZlHwDAHU6CQl4MK93.jpg"]},{"character":"蛍","type":"acrylic_stand","figure_type":null,"name":"原神 影を狩りてシリーズ アクリルスタンド 蛍 Bタイプ","variant":null,"release":null,"shop":"miHoYo","price_new":null,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.amiami.jp/top/detail/detail?gcode=GOODS-04557466","surugaya_url":null,"mercari_url":null,"official_url":"https://www.amiami.jp/top/detail/detail?gcode=GOODS-04557466","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"胡桃","type":"figure","figure_type":null,"name":"原神 胡桃・雪晴梅香Ver. 1/7スケール 完成品フィギュア（APEX）","variant":null,"release":"2025-08-01","shop":"APEX","price_new":27500,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://app.famitsu.com/20240703_2252075/","surugaya_url":null,"mercari_url":null,"official_url":"https://app.famitsu.com/20240703_2252075/","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"胡桃","type":"figure","figure_type":null,"name":"原神 胡桃 ゆらゆらミニフィギュア","variant":null,"release":null,"shop":"HAKUTEA","price_new":2850,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/550","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/550","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"胡桃","type":"plush","figure_type":null,"name":"原神 籐人形・胡桃 ぬいぐるみ","variant":null,"release":null,"shop":"HAKUTEA","price_new":2300,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/1850","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/1850","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/893298334795_01.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/893298334795_01.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/893298334795_01.jpg"]},{"character":"胡桃","type":"acrylic_stand","figure_type":null,"name":"原神 璃月シリーズ アクリルスタンド（胡桃）","variant":null,"release":null,"shop":"HAKUTEA","price_new":1400,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/145","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/145","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/623927994401_01_20260210.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/623927994401_01_20260210.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/623927994401_01_20260210.jpg"]},{"character":"刻晴","type":"figure","figure_type":null,"name":"原神 刻晴 疾雷快雨Ver. 1/7スケール 完成品フィギュア（APEX）","variant":null,"release":"2022-12-01","shop":"APEX","price_new":19580,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://hobby.watch.impress.co.jp/docs/news/1351200.html","surugaya_url":null,"mercari_url":null,"official_url":"https://hobby.watch.impress.co.jp/docs/news/1351200.html","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"刻晴","type":"plush","figure_type":null,"name":"原神minini 刻晴 ぬいぐるみ","variant":null,"release":"2026-06-12","shop":"LINE FRIENDS SQUARE","price_new":3520,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://linefriendssquare.jp/products/100035516","surugaya_url":null,"mercari_url":null,"official_url":"https://linefriendssquare.jp/products/100035516","image_url":"https://linefriendssquare.jp/cdn/shop/files/3_cc1692a0-8dba-4e0c-aad5-ed602cd37758.jpg?format=webp&v=1780395748","images":["https://linefriendssquare.jp/cdn/shop/files/3_cc1692a0-8dba-4e0c-aad5-ed602cd37758.jpg?format=webp&v=1780395748"],"flag":"hold","_images":["https://linefriendssquare.jp/cdn/shop/files/3_cc1692a0-8dba-4e0c-aad5-ed602cd37758.jpg?format=webp&v=1780395748"]},{"character":"刻晴","type":"acrylic_stand","figure_type":null,"name":"原神 華々しき流年シリーズ アクリルスタンド 霓裾の舞-刻晴","variant":null,"release":null,"shop":"fantasy village","price_new":1485,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://shop.fantasy-village.com/shopdetail/000000001975/","surugaya_url":null,"mercari_url":null,"official_url":"https://shop.fantasy-village.com/shopdetail/000000001975/","image_url":"https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/75/19/s1_000000001975.jpg?1678209906","images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/75/19/s1_000000001975.jpg?1678209906"],"flag":"hold","_images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/75/19/s1_000000001975.jpg?1678209906"]},{"character":"刻晴","type":"acrylic_stand","figure_type":null,"name":"原神 璃月港シリーズ キャラクターアクリルスタンド 刻晴","variant":null,"release":null,"shop":"fantasy village","price_new":1430,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://shop.fantasy-village.com/shopdetail/000000000923/","surugaya_url":null,"mercari_url":null,"official_url":"https://shop.fantasy-village.com/shopdetail/000000000923/","image_url":"https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/23/09/3_000000000923.jpg?1706868109","images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/23/09/3_000000000923.jpg?1706868109"],"flag":"hold","_images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/23/09/3_000000000923.jpg?1706868109"]},{"character":"ナヒーダ","type":"acrylic_stand","figure_type":null,"name":"原神 スメールシリーズ キャラクターアクリルスタンド ナヒーダ","variant":null,"release":null,"shop":"fantasy village","price_new":1430,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://shop.fantasy-village.com/shopdetail/000000003556/","surugaya_url":null,"mercari_url":null,"official_url":"https://shop.fantasy-village.com/shopdetail/000000003556/","image_url":"https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/56/35/2_000000003556.jpg?1681456421","images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/56/35/2_000000003556.jpg?1681456421"],"flag":"hold","_images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/56/35/2_000000003556.jpg?1681456421"]},{"character":"ナヒーダ","type":"figure","figure_type":null,"name":"原神「戦場の英姿」スメール篇 トレーディングフィギュア 9個入りBOX（ナヒーダ他）","variant":null,"release":"2026-08-31","shop":"APEX","price_new":17820,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://hobby.dengeki.com/news/2968994/","surugaya_url":null,"mercari_url":null,"official_url":"https://hobby.dengeki.com/news/2968994/","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"ナヒーダ","type":"plush","figure_type":null,"name":"原神 パペットぬいぐるみ Vol.1（ナヒーダ）","variant":null,"release":null,"shop":"HAKUTEA","price_new":1700,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/598","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/598","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"ナヴィア","type":"acrylic_stand","figure_type":null,"name":"原神 影を狩りてシリーズ アクリルスタンド ナヴィア","variant":null,"release":"2025-02-01","shop":"miHoYo","price_new":1540,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://genshin-goods.net/2025/02/05/acrylicstand-navia-shadow/","surugaya_url":null,"mercari_url":null,"official_url":"https://genshin-goods.net/2025/02/05/acrylicstand-navia-shadow/","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"ナヴィア","type":"acrylic_stand","figure_type":null,"name":"原神 フォンテーヌシリーズ アクリルスタンド ナヴィア","variant":null,"release":null,"shop":"HAKUTEA","price_new":1400,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/656","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/656","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/738273755037_01.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/738273755037_01.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/738273755037_01.jpg"]},{"character":"ナヴィア","type":"acrylic_stand","figure_type":null,"name":"原神 ファントムハンター アクリルスタンド ナヴィア","variant":null,"release":null,"shop":"HAKUTEA","price_new":1400,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/1264","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/1264","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/Story/824379912308_03.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/Story/824379912308_03.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/Story/824379912308_03.jpg"]},{"character":"パイモン","type":"figure","figure_type":null,"name":"原神 S.H.Figuarts パイモン","variant":null,"release":"2024-09-01","shop":"バンダイ","price_new":7150,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://tamashiiweb.com/item/14855/","surugaya_url":null,"mercari_url":null,"official_url":"https://tamashiiweb.com/item/14855/","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"パイモン","type":"acrylic_stand","figure_type":null,"name":"原神 影を狩りてシリーズ アクリルスタンド パイモン","variant":null,"release":null,"shop":"miHoYo","price_new":1430,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://store.shopping.yahoo.co.jp/amiami/goods-04557462.html","surugaya_url":null,"mercari_url":null,"official_url":"https://store.shopping.yahoo.co.jp/amiami/goods-04557462.html","image_url":"https://item-shopping.c.yimg.jp/i/n/amiami_goods-04557462","images":["https://item-shopping.c.yimg.jp/i/n/amiami_goods-04557462"],"flag":"hold","_images":["https://item-shopping.c.yimg.jp/i/n/amiami_goods-04557462"]},{"character":"パイモン","type":"plush","figure_type":null,"name":"原神 BIGぬいぐるみ パイモン（タイトー限定プライズ）","variant":null,"release":"2021-10-01","shop":"タイトー","price_new":null,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.taito.co.jp/taito-prize/0000014391","surugaya_url":null,"mercari_url":null,"official_url":"https://www.taito.co.jp/taito-prize/0000014391","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"雷電将軍","type":"figure","figure_type":null,"name":"原神 ねんどろいど 雷電将軍","variant":null,"release":"2025-06-01","shop":"グッドスマイル","price_new":7500,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.goodsmile.com/en/product/21681/Nendoroid+Raiden+Shogun","surugaya_url":null,"mercari_url":null,"official_url":"https://www.goodsmile.com/en/product/21681/Nendoroid+Raiden+Shogun","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"雷電将軍","type":"figure","figure_type":null,"name":"原神 雷電将軍 一心浄土Ver. 1/7スケール 完成品フィギュア（APEX）","variant":null,"release":"2027-09-01","shop":"APEX","price_new":45650,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://houzero-goods.com/gen-apex-raiden-figure-1-7-yoyaku","surugaya_url":null,"mercari_url":null,"official_url":"https://houzero-goods.com/gen-apex-raiden-figure-1-7-yoyaku","image_url":"https://houzero-goods.com/wp-content/uploads/2026/05/gen-china-2026-0527-raiden-figure31.jpg","images":["https://houzero-goods.com/wp-content/uploads/2026/05/gen-china-2026-0527-raiden-figure31.jpg"],"flag":"hold","_images":["https://houzero-goods.com/wp-content/uploads/2026/05/gen-china-2026-0527-raiden-figure31.jpg"]},{"character":"雷電将軍","type":"acrylic_stand","figure_type":null,"name":"原神 稲妻城シリーズ キャラアクリルスタンド 雷電将軍","variant":null,"release":null,"shop":"miHoYo","price_new":1430,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.loft.co.jp/store/g/g6974696611809/","surugaya_url":null,"mercari_url":null,"official_url":"https://www.loft.co.jp/store/g/g6974696611809/","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"八重神子","type":"figure","figure_type":null,"name":"原神 八重神子・浮世笑百姿Ver. 1/7スケール 完成品フィギュア（APEX）","variant":null,"release":"2026-05-01","shop":"APEX","price_new":25080,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://hobby.watch.impress.co.jp/docs/news/1668024.html","surugaya_url":null,"mercari_url":null,"official_url":"https://hobby.watch.impress.co.jp/docs/news/1668024.html","image_url":null,"images":[],"flag":"hold","_images":[]},{"character":"八重神子","type":"plush","figure_type":null,"name":"原神 雨中嬉楽 ぬいぐるみ（八重神子）","variant":null,"release":null,"shop":"HAKUTEA","price_new":2300,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/1975","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/1975","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/902957763794_01.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/902957763794_01.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/902957763794_01.jpg"]},{"character":"八重神子","type":"acrylic_stand","figure_type":null,"name":"原神 輝夜華宴 アクリルスタンド Vol.1（八重神子）","variant":null,"release":null,"shop":"HAKUTEA","price_new":2000,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.hakutea.jp/product/1853","surugaya_url":null,"mercari_url":null,"official_url":"https://www.hakutea.jp/product/1853","image_url":"https://www.hakutea.jp/data/hakutea/product/Genshin/892597475011_002.jpg","images":["https://www.hakutea.jp/data/hakutea/product/Genshin/892597475011_002.jpg"],"flag":"hold","_images":["https://www.hakutea.jp/data/hakutea/product/Genshin/892597475011_002.jpg"]},{"character":"八重神子","type":"acrylic_stand","figure_type":null,"name":"原神 2024フェスシリーズ アクリルスタンド 八重神子","variant":null,"release":null,"shop":"fantasy village","price_new":2200,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://shop.fantasy-village.com/shopdetail/000000006706/","surugaya_url":null,"mercari_url":null,"official_url":"https://shop.fantasy-village.com/shopdetail/000000006706/","image_url":"https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/06/67/3_000000006706.jpg","images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/06/67/3_000000006706.jpg"],"flag":"hold","_images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/06/67/3_000000006706.jpg"]},{"character":"夜蘭","type":"acrylic_stand","figure_type":null,"name":"原神 璃月港シリーズ キャラクターアクリルスタンド 夜蘭","variant":null,"release":null,"shop":"fantasy village","price_new":1430,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://shop.fantasy-village.com/shopdetail/000000002500/","surugaya_url":null,"mercari_url":null,"official_url":"https://shop.fantasy-village.com/shopdetail/000000002500/","image_url":"https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/00/25/s1_000000002500.jpg?1707204013","images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/00/25/s1_000000002500.jpg?1707204013"],"flag":"hold","_images":["https://makeshop-multi-images.akamaized.net/fantasy2021/shopimages/00/25/s1_000000002500.jpg?1707204013"]},{"character":"鍾離","type":"figure","figure_type":null,"name":"原神 ねんどろいど 鍾離","variant":null,"release":"2025-05-31","shop":"グッドスマイル","price_new":7500,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.goodsmile.com/en/product/21670/Nendoroid+Zhongli","surugaya_url":null,"mercari_url":null,"official_url":"https://www.goodsmile.com/en/product/21670/Nendoroid+Zhongli","image_url":"https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/21670/6Rasx28EkcWBTiYnUt1FfuyheJHXKwGL.jpg","images":["https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/21670/6Rasx28EkcWBTiYnUt1FfuyheJHXKwGL.jpg"],"flag":"hold","_images":["https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/21670/6Rasx28EkcWBTiYnUt1FfuyheJHXKwGL.jpg"]},{"character":"鍾離","type":"figure","figure_type":null,"name":"原神 Wondrous Travels Series 鍾離（デフォルメフィギュア）","variant":null,"release":"2026-06-30","shop":"グッドスマイル","price_new":5600,"price_used":null,"price_captured_at":null,"category":"通常","subtype":null,"live":[],"live_flag":false,"route":[],"kuji_name":null,"prize_rank":null,"kuji_prize_type":null,"source_url":"https://www.goodsmile.com/en/product/1139822/","surugaya_url":null,"mercari_url":null,"official_url":"https://www.goodsmile.com/en/product/1139822/","image_url":"https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/1139822/s1iA5bB7fJgukPRKvtrYMpS2c3G8N6Lw.jpg","images":["https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/1139822/s1iA5bB7fJgukPRKvtrYMpS2c3G8N6Lw.jpg"],"flag":"hold","_images":["https://storage.googleapis.com/gsc-webrevo-sdk-storage-prd/product/image/1139822/s1iA5bB7fJgukPRKvtrYMpS2c3G8N6Lw.jpg"]}];
+const QUEUE = [];  // 新商品候補（discovery_queue.jsonlのpending。編集ビルドのみ注入）
+
+// --- localStorage 永続化 ---
+const LS_OWN="gkmas_own", LS_CLICKS="gkmas_clicks", LS_IMGDEL="gkmas_img_del", LS_PASTE="gkmas_url_paste", LS_QDEC="gkmas_queue_decisions";
+let _ownStore={}, _clickStore={};
+try{ _ownStore=JSON.parse(localStorage.getItem(LS_OWN)||"{}"); }catch(e){}
+try{ _clickStore=JSON.parse(localStorage.getItem(LS_CLICKS)||"{}"); }catch(e){}
+DATA.forEach((r,i)=>{ r._id=i; r._key=r.character+"|"+r.name;
+  r._clicks=_clickStore[r._key]||0; r._own=_ownStore[r._key]||null; });
+function persistOwn(){ try{ const o={}; DATA.forEach(r=>{ if(r._own) o[r._key]=r._own; });
+  localStorage.setItem(LS_OWN, JSON.stringify(o)); }catch(e){} }
+function persistClicks(){ try{ const o={}; DATA.forEach(r=>{ if(r._clicks) o[r._key]=r._clicks; });
+  localStorage.setItem(LS_CLICKS, JSON.stringify(o)); }catch(e){} }
+function imgDelStore(){ try{return JSON.parse(localStorage.getItem(LS_IMGDEL)||"{}");}catch(e){return {};} }
+function pasteStore(){ try{return JSON.parse(localStorage.getItem(LS_PASTE)||"{}");}catch(e){return {};} }
+function saveImgDel(o){ try{localStorage.setItem(LS_IMGDEL,JSON.stringify(o));}catch(e){} }
+function savePaste(o){ try{localStorage.setItem(LS_PASTE,JSON.stringify(o));}catch(e){} }
+// --- 新商品候補の承認/統合/却下（localStorage → エクスポートで queue_decisions） ---
+function qDecStore(){ try{return JSON.parse(localStorage.getItem(LS_QDEC)||"{}");}catch(e){return {};} }
+function setQDec(cid,decision){ const s=qDecStore(); if(decision){s[cid]=decision;}else{delete s[cid];}
+  try{localStorage.setItem(LS_QDEC,JSON.stringify(s));}catch(e){} }
+function qDecOf(cid){ return qDecStore()[cid]||null; }  // "approved" | "merged" | "rejected" | null
+
+const TYPE_LABEL = {
+  acrylic_stand:"アクスタ", acrylic_key:"アクキー", strap_charm:"ストラップ/チャーム",
+  can_badge:"缶バッジ", figure:"フィギュア", plush:"ぬいぐるみ", card:"カード",
+  tapestry:"タペストリー", stationery:"文具・雑貨", apparel:"アパレル",
+  standee_art:"アクリルアート", live_goods:"ライブグッズ", set:"セット", other:"その他"
+};
+const TYPE_ICON = {
+  acrylic_stand:"🪧", acrylic_key:"🔑", strap_charm:"🎗️", can_badge:"🔘", figure:"🎎",
+  plush:"🧸", card:"🃏", tapestry:"🖼️", stationery:"✏️", apparel:"👕",
+  standee_art:"🎨", live_goods:"💡", set:"📦", other:"✨"
+};
+const TYPE_GROUPS = [
+  {label:"アクリルスタンド系", types:["acrylic_stand","standee_art"]},
+  {label:"キーホルダー・ストラップ", types:["acrylic_key","strap_charm"]},
+  {label:"缶バッジ・バッジ", types:["can_badge"]},
+  {label:"カード・ブロマイド", types:["card"]},
+  {label:"フィギュア・ぬいぐるみ", types:["figure","plush"]},
+  {label:"布もの・アパレル", types:["apparel","tapestry"]},
+  {label:"文具・雑貨・その他", types:["stationery","live_goods","set","other"]},
+];
+const CHAR_CLASS = {"パイモン":"paimon","蛍":"hotaru","神里綾華":"ayaka","胡桃":"hutao","雷電将軍":"raiden","甘雨":"ganyu","ナヒーダ":"nahida","夜蘭":"yelan","刻晴":"keqing","八重神子":"yae","フリーナ":"furina","鍾離":"zhongli","神里綾人":"ayato","ナヴィア":"navia"};
+// キャラの担当カラー（原神 グッズDB・代表色の近似。調整可）
+const CHAR_COLOR = {"パイモン":"#e8d89a","蛍":"#f0d060","神里綾華":"#a8c8e8","胡桃":"#d94a4a","雷電将軍":"#7a6fc8","甘雨":"#6a8fd0","ナヒーダ":"#7fc0a0","夜蘭":"#3f9a8a","刻晴":"#a878c8","八重神子":"#e08ab0","フリーナ":"#6fb0d8","鍾離":"#b08838","神里綾人":"#5a8fc0","ナヴィア":"#f0c860"};
+const SUBTYPE_ORDER = {
+  acrylic_stand: ["アクリルスタンド","ミニアクリルスタンド"],
+  apparel: ["タオル","Tシャツ","アウター","その他アパレル"],
+  other:   ["ポーチ","バッグ","リュック","その他雑貨"]
+};
+// ミニアクリルスタンド(ミニキャラ)を通常のアクリルスタンドと分離。データにsubtypeがあれば優先。
+function subtypeOf(r){
+  if(r.subtype) return r.subtype;
+  if(r.type==="acrylic_stand"){
+    return /ミニアクリルスタンド|ミニキャラ|ちびキャラ|ミニアクスタ|ミニ\s?ver/.test(r.name||"") ? "ミニアクリルスタンド" : "アクリルスタンド";
+  }
+  return null;
+}
+
+const state = { char:new Set(), type:new Set(), ft:new Set(), route:new Set(),
+  live:new Set(), kuji:new Set(), cat:new Set(), own:"", sort:"reco", debug:false, noimg:false, showQueue:false };
+
+function uniq(a){return [...new Set(a)];}
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+// 商品名を読みやすく：「学園アイドルマスター」（開き括弧があればその前）で改行。先頭にある場合は改行しない。
+function fmtName(name){ const s=esc(name); const i=s.search(/「?原神|Genshin/); return i>0 ? s.slice(0,i)+"<br>"+s.slice(i) : s; }
+function relKey(r){ if(!r.release) return null;
+  const p=r.release.split("-"); return `${(p[0]||"0000")}-${(p[1]||"01").padStart(2,"0")}-${(p[2]||"01").padStart(2,"0")}`; }
+// おすすめ判定：発売日ベース。予約=未来、新着=過去RECENT_DAYS日以内。
+// アフィリ購入の妙味が高い「これから出る／出たばかり」を強調＆おすすめ順で上に出す。
+const RECENT_DAYS = 60;
+function releaseStatus(r){
+  const k = relKey(r); if(!k) return null;
+  const t = todayStr();
+  if(k > t) return "reserve";                 // 予約（発売日が未来）
+  const days = (Date.parse(t) - Date.parse(k)) / 86400000;
+  return (days >= 0 && days <= RECENT_DAYS) ? "newin" : null;  // 新着（発売後RECENT_DAYS日以内）
+}
+function recoWeight(r){ const s=releaseStatus(r); return s==="reserve"?2:(s==="newin"?1:0); }
+function charScope(){ return DATA.filter(r=>!state.char.size || state.char.has(r.character)); }
+
+// --- 手動オーバーライド（編集で貼った値）を最優先で効かせる ---
+function pasteFor(r){ return pasteStore()[r._key]||{}; }
+function effField(r,f){ const p=pasteFor(r); return (p[f]!=null && p[f]!=="") ? p[f] : null; }
+// 駿河屋の商品詳細ID → 画像URL（公式画像が無い時のフォールバック）
+// 画像は駿河屋の画像CDNから直接表示（ホットリンク可・referrerpolicy=no-referrerでReferer制限回避）。
+// URLは詳細IDから導出： https://www.suruga-ya.jp/database/pics_light/game/<ID>.jpg
+function surugayaImg(r){
+  const u = effField(r,"surugaya_url") || r.surugaya_url || "";
+  const m = u.match(/\/product\/detail\/(\d+)/);
+  return m ? ("https://www.suruga-ya.jp/database/pics_light/game/"+m[1]+".jpg") : null;
+}
+// 有効な画像URL配列（自動収集 + 手動追加 − 削除）。公式が無ければ駿河屋画像をフォールバック。
+function activeImages(r){
+  const del=(imgDelStore()[r._key]||[]);
+  const added=((pasteFor(r).images_added)||[]);
+  let imgs=(r._images||[]).filter(u=>!del.includes(u));
+  added.forEach(u=>{ if(!del.includes(u) && !imgs.includes(u)) imgs.push(u); });
+  if(!imgs.length){                          // ★公式画像ゼロ → 駿河屋画像へフォールバック
+    const su=surugayaImg(r);
+    if(su && !del.includes(su)) imgs.push(su);
+  }
+  return imgs;
+}
+// 表示中の先頭画像が駿河屋フォールバックか（サムネに出典ラベルを付けるため）
+function isSurugayaImg(u){ return typeof u==="string" && u.indexOf("suruga-ya.jp/database/")>=0; }
+function showImagesNow(){ return IMG_PUBLIC==="hotlink" || state.debug; }  // 編集モードは常に表示
+
+function buildChars(){
+  const el=document.getElementById("charChips"); el.innerHTML="";
+  uniq(DATA.map(r=>r.character)).forEach(c=>{
+    const n=DATA.filter(r=>r.character===c).length;
+    const b=document.createElement("button"); b.className="chip char";
+    b.setAttribute("aria-pressed", state.char.has(c)?"true":"false");
+    b.innerHTML=`${esc(c)} <span class="c">${n}</span>`;
+    b.onclick=()=>{ state.char.has(c)?state.char.delete(c):state.char.add(c);
+      b.setAttribute("aria-pressed", state.char.has(c)?"true":"false");
+      buildTypes(); buildProg(); render(); };
+    el.appendChild(b);
+  });
+}
+function buildTypes(){
+  const wrap=document.getElementById("typeWrap"); wrap.innerHTML="";
+  const scope=charScope();
+  TYPE_GROUPS.forEach(g=>{
+    const present=g.types.filter(t=>scope.some(r=>r.type===t));
+    if(!present.length) return;
+    const gd=document.createElement("div"); gd.className="tgroup";
+    const total=scope.filter(r=>g.types.includes(r.type)).length;
+    const gl=document.createElement("div"); gl.className="tglabel";
+    gl.innerHTML=`${esc(g.label)} <span class="gn">${total}</span>`;
+    const chips=document.createElement("div"); chips.className="chips";
+    present.forEach(t=>{
+      if(SUBTYPE_ORDER[t]){
+        SUBTYPE_ORDER[t].forEach(sub=>{
+          const n=scope.filter(r=>r.type===t && subtypeOf(r)===sub).length;
+          if(!n) return;
+          chips.appendChild(mkChip(sub, n, state.type, "sub:"+sub, false));
+        });
+      } else {
+        chips.appendChild(mkChip(TYPE_LABEL[t]||t, scope.filter(r=>r.type===t).length, state.type, "type:"+t, false));
+      }
+    });
+    gd.appendChild(gl); gd.appendChild(chips); wrap.appendChild(gd);
+  });
+}
+function buildAdv(){
+  fillChips("ftChips", uniq(DATA.map(r=>r.figure_type).filter(Boolean)), state.ft);
+  fillChips("routeChips", uniq([].concat(...DATA.map(r=>r.route||[]))), state.route);
+  fillChips("liveChips", uniq([].concat(...DATA.map(r=>r.live||[]))), state.live);
+  fillChips("kujiChips", uniq(DATA.map(r=>r.kuji_name).filter(Boolean)), state.kuji);
+  fillChips("catChips", uniq(DATA.map(r=>r.category).filter(Boolean)), state.cat);
+}
+function fillChips(id, vals, set){
+  const el=document.getElementById(id); el.innerHTML="";
+  if(!vals.length){el.innerHTML='<span style="font-size:11px;color:var(--faint)">該当なし</span>';return;}
+  vals.forEach(v=>el.appendChild(mkChip(v,null,set,v,true)));
+}
+function mkChip(label,count,set,val,alt){
+  const b=document.createElement("button"); b.className="chip"+(alt?" alt":"");
+  b.setAttribute("aria-pressed", set.has(val)?"true":"false");
+  b.innerHTML=esc(label)+(count!=null?` <span class="c">${count}</span>`:"");
+  b.onclick=()=>{ set.has(val)?set.delete(val):set.add(val);
+    b.setAttribute("aria-pressed", set.has(val)?"true":"false");
+    if(set===state.type) buildTypes(); render(); };
+  return b;
+}
+function buildProg(){
+  const body=document.getElementById("progBody"); body.innerHTML="";
+  const scope=charScope();
+  TYPE_GROUPS.forEach(g=>{
+    const items=scope.filter(r=>g.types.includes(r.type));
+    if(!items.length) return;
+    const have=items.filter(r=>r._own==="have").length;
+    const pct=Math.round(have/items.length*100);
+    const row=document.createElement("div"); row.className="prow";
+    row.innerHTML=`<span class="pn">${esc(g.label)}</span>
+      <span class="pbar"><i style="width:${pct}%"></i></span>
+      <span class="pf">${have}/${items.length}</span>`;
+    body.appendChild(row);
+  });
+}
+
+function match(r){
+  if(state.noimg && activeImages(r).length) return false;  // 編集用：画像なしのみ表示
+  if(state.char.size && !state.char.has(r.character)) return false;
+  if(state.type.size){
+    let ok=false;
+    for(const tok of state.type){
+      if(tok.startsWith("type:") && tok.slice(5)===r.type){ ok=true; break; }
+      if(tok.startsWith("sub:")  && tok.slice(4)===subtypeOf(r)){ ok=true; break; }
+    }
+    if(!ok) return false;
+  }
+  if(state.own==="have" && r._own!=="have") return false;
+  if(state.own==="want" && r._own!=="want") return false;
+  if(state.own==="none" && r._own!==null) return false;
+  if(state.ft.size && !state.ft.has(r.figure_type)) return false;
+  if(state.route.size && !(r.route||[]).some(x=>state.route.has(x))) return false;
+  if(state.live.size && !(r.live||[]).some(x=>state.live.has(x))) return false;
+  if(state.kuji.size && !state.kuji.has(r.kuji_name)) return false;
+  if(state.cat.size && !state.cat.has(r.category)) return false;
+  return true;
+}
+function effPriceUsed(r){ const p=effField(r,"price_used"); return p!=null?Number(p):(r.price_used!=null?r.price_used:null); }
+function priceForSort(r){ const pu=effPriceUsed(r); return pu!=null?pu:(r.price_new!=null?r.price_new:null); }
+function sortRows(rows){
+  const s=state.sort, wi=rows.map((r,i)=>({r,i}));
+  wi.sort((a,b)=>{ const A=a.r,B=b.r;
+    if(s==="reco") return (recoWeight(B)-recoWeight(A))||(B._clicks-A._clicks)||a.i-b.i;
+    if(s==="name") return (A.name||"").localeCompare(B.name||"","ja")||a.i-b.i;
+    if(s==="rel_desc"||s==="rel_asc"){ const ka=relKey(A),kb=relKey(B);
+      if(ka===null&&kb===null)return a.i-b.i; if(ka===null)return 1; if(kb===null)return -1;
+      return s==="rel_desc"?(kb.localeCompare(ka)||a.i-b.i):(ka.localeCompare(kb)||a.i-b.i); }
+    if(s==="price_asc"||s==="price_desc"){ const pa=priceForSort(A),pb=priceForSort(B),na=pa==null,nb=pb==null;
+      if(na&&nb)return a.i-b.i; if(na)return 1; if(nb)return -1;
+      return s==="price_asc"?(pa-pb||a.i-b.i):(pb-pa||a.i-b.i); }
+    return a.i-b.i; });
+  return wi.map(x=>x.r);
+}
+function yen(v){ return v==null?'<span class="pv none">—</span>':`<span class="pv">¥${v.toLocaleString("ja-JP")}</span>`; }
+
+
+// ===== アフィリエイト設定（改善提案書 §4）: IDを入れると全カードのボタンが収益化される =====
+// 空のままでも「商品名で検索」リンクとして機能する（ユーザーは買える／申請前でも安全）。
+const AFF_CONFIG = {
+  amazon: "",      // Amazonアソシエイト タグ（例: "yourname-22"）。承認後に設定。
+  rakuten_id: "",  // 楽天アフィリエイトID。設定時のみ楽天ボタンにафィリ付与。
+  yahoo_vc: "",    // バリューコマース(Yahoo!ショッピング) sid/pid。設定時のみ付与。
+};
+// 検索語の最適化: フル商品名(「作品名 アクリルスタンド／ルリア」等・ノイズ多)ではなく
+// 「キャラ名 + 種別ラベル + バリエーション語」でECヒット率を上げる。同名キャラ対策に作品トークンも足す。
+const AFF_TYPE_WORD = {acrylic_stand:"アクリルスタンド", standee_art:"アクリル", plush:"ぬいぐるみ", figure:"フィギュア"};
+function _affQuery(r){
+  const parts = [];
+  if(r.character) parts.push(r.character);
+  const tw = AFF_TYPE_WORD[r.type];
+  if(tw) parts.push(tw);
+  // バリエーション語(ver./水着/バニー/1/7 等)を商品名から拾って精度を上げる
+  const nm = (r.name||"");
+  const mVer = nm.match(/([^\s（(／\/]{1,10}(?:Ver\.?|ver\.?|バニー|水着|制服|私服|1\/[0-9]|ねんどろいど|POP UP PARADE|figma))/);
+  if(mVer && !parts.some(p=>mVer[1].includes(p))) parts.push(mVer[1]);
+  // 作品ヒント(同名キャラ切り分け用)。AFF_WORK はビルド時にテンプレへ埋め込む。
+  if(typeof AFF_WORK!=="undefined" && AFF_WORK) parts.push(AFF_WORK);
+  return parts.join(" ").trim() || nm;
+}
+function _amazonUrl(q){
+  let u = "https://www.amazon.co.jp/s?k=" + encodeURIComponent(q);
+  if(AFF_CONFIG.amazon) u += "&tag=" + encodeURIComponent(AFF_CONFIG.amazon);
+  return u;
+}
+function _rakutenUrl(q){
+  // 楽天アフィリは本来リンク変換が要る。ここでは検索リンク（IDありなら将来 hb.afl 形式へ差し替え可）。
+  return "https://search.rakuten.co.jp/search/mall/" + encodeURIComponent(q) + "/";
+}
+function _yahooUrl(q){
+  return "https://shopping.yahoo.co.jp/search?p=" + encodeURIComponent(q);
+}
+// 買える店を横断するボタン群（Amazon/楽天/Yahoo。フィギュア=高単価はAmazonが最も効く）
+function affiliateBtns(r){
+  const q = _affQuery(r);
+  const amz = `<a class="cta af amz" href="${esc(_amazonUrl(q))}" target="_blank" rel="sponsored nofollow noopener" onclick="bump(${r._id})" title="Amazonで探す">Amazon</a>`;
+  const rak = `<a class="cta af rak" href="${esc(_rakutenUrl(q))}" target="_blank" rel="sponsored nofollow noopener" onclick="bump(${r._id})" title="楽天で探す">楽天</a>`;
+  const yah = `<a class="cta af yah" href="${esc(_yahooUrl(q))}" target="_blank" rel="sponsored nofollow noopener" onclick="bump(${r._id})" title="Yahoo!ショッピングで探す">Yahoo!</a>`;
+  return amz+rak+yah;
+}
+
+const AFF_ID = ""; // 駿河屋アフィリID
+function surugayaUrl(r){
+  const ov=effField(r,"surugaya_url");
+  let base;
+  if(ov){ base=ov; }
+  else if(r.surugaya_url){ base=r.surugaya_url; }
+  else if(r.source_url && /suruga-ya\.jp\/product\/detail\//.test(r.source_url)){ base=r.source_url; }
+  else { base="https://www.suruga-ya.jp/search?category=&search_word="+encodeURIComponent(r.name||""); }
+  if(AFF_ID){ base += (base.includes("?")?"&":"?")+"aff="+encodeURIComponent(AFF_ID); }
+  return base;
+}
+const MERCARI_AFID = ""; // メルカリ afid。未設定ならメルカリボタン非表示
+function mercariUrl(r){
+  const ov=effField(r,"mercari_url"); if(ov) return ov;
+  if(r.mercari_url) return r.mercari_url;
+  if(MERCARI_AFID){ return "https://jp.mercari.com/search?keyword="+encodeURIComponent(r.name||"")+"&afid="+encodeURIComponent(MERCARI_AFID); }
+  return null;
+}
+function mercariBtn(r){
+  const u=mercariUrl(r); if(!u) return "";
+  return `<a class="cta mercari" href="${esc(u)}" target="_blank" rel="noopener sponsored" onclick="bump(${r._id})">メルカリで探す</a>`;
+}
+// ▼ 公式/ブランド購入ボタン（🔜予約・✨新着 の商品にのみ表示）
+// 「その作品/コラボの公式サイト」へ誘導。色は各サイトのイメージに寄せる（下の bg/ink は調整可）。
+// アフィリ対象＝アニメイト・Yahoo（OFFICIAL_AFF にIDを入れると付与）。official_url が有れば最優先。
+const OFFICIAL_AFF = { animate:"", movic:"" };
+const BRAND_SITES = [
+  {key:/miHoYo|HoYo|ホヨバ|原神公式/i, label:"HoYoverse", bg:"#1a3a6a", ink:"#fff", url:()=>"https://genshin.hoyoverse.com/"},
+  {key:/グッスマ|グッドスマイル|GSC|ねんどろいど|POP UP/i, label:"グッスマ", bg:"#00a0b4", ink:"#fff", url:()=>"https://www.goodsmile.com/"},
+  {key:/APEX|エイペックス|ミニスター|miniQ/i, label:"APEX", bg:"#333", ink:"#fff", url:n=>"https://www.goodsmile.com/"},
+  {key:/タイトー|TAITO|プライズ|セガ|SEGA/i, label:"タイトー/セガ", bg:"#ee2737", ink:"#fff", url:()=>"https://www.taito.co.jp/goods"},
+  {key:/バンプレスト|BANPRESTO|一番くじ|BANDAI/i, label:"バンダイ", bg:"#e60012", ink:"#fff", url:()=>"https://bsp-prize.jp/"},
+  {key:/AMNIBUS|アムニバス|アルマビアンカ/i, label:"AMNIBUS", bg:"#222", ink:"#fff", url:n=>"https://amnibus.com/search?q="+encodeURIComponent(n)},
+  {key:/アニメイト/, label:"アニメイト", bg:"#0a9f4f", ink:"#fff", url:n=>"https://www.animate-onlineshop.jp/products/list.php?search="+encodeURIComponent(n)},
+];
+const BRAND_DEFAULT = {label:"アニメイト", bg:"#0a9f4f", ink:"#fff", url:n=>"https://www.animate-onlineshop.jp/products/list.php?search="+encodeURIComponent(n)};
+function detectBrand(r){
+  const hay=(r.name||"")+" "+(r.shop||"")+" "+(r.maker||"");
+  for(const b of BRAND_SITES){ if(b.key.test(hay)) return b; }
+  return BRAND_DEFAULT;
+}
+function officialStoreBtn(r){
+  const st=releaseStatus(r);
+  const ov=effField(r,"official_url") || r.official_url || "";
+  if(st!=="reserve" && st!=="newin" && !ov) return "";  // 新着・予約、または公式URLを持つ商品に表示
+  const b=detectBrand(r);
+  const href=ov || b.url(r.name||"");
+  const label=(st==="reserve"? b.label+"で予約" : (st==="newin"? b.label+"で見る" : b.label));
+  return `<a class="cta brand" style="background:${b.bg};color:${b.ink}" href="${esc(href)}" target="_blank" rel="noopener sponsored" onclick="bump(${r._id})">${esc(label)}</a>`;
+}
+// ▼▼▼ DEBUG-ONLY：編集モード用ボタン群。公開前に、この関数群と render 内の呼び出しを削除する ▼▼▼
+function officialBtn(r){
+  if(!state.debug || !r.source_url) return "";
+  return `<a class="cta ghost" href="${esc(r.source_url)}" target="_blank" rel="noopener">公式で確認<span class="dbgtag">編集用</span></a>`;
+}
+function editPanel(r){
+  if(!state.debug) return "";
+  const p=pasteFor(r);
+  const sv=(p.surugaya_url!=null?p.surugaya_url:(r.surugaya_url||""));
+  const mv=(p.mercari_url!=null?p.mercari_url:(r.mercari_url||""));
+  const pv=(p.price_used!=null?p.price_used:(r.price_used!=null?r.price_used:""));
+  const searchUrl="https://www.suruga-ya.jp/search?category=&search_word="+encodeURIComponent(r.name||"");
+  return `<div class="editpanel">
+    <div class="eh">🔧 編集（この端末に保存→「⬇ 裁定を書き出す」でmanual_overrides.jsonに出力）</div>
+    <div class="editrow"><label>駿河屋URL</label>
+      <input type="text" value="${esc(sv)}" placeholder="product/detail のURLを貼る"
+        oninput="setPaste(${r._id},'surugaya_url',this.value)">
+      <a class="mini" href="${esc(searchUrl)}" target="_blank" rel="noopener">🔍検索</a></div>
+    <div class="editrow"><label>メルカリURL</label>
+      <input type="text" value="${esc(mv)}" placeholder="任意：固定リンク"
+        oninput="setPaste(${r._id},'mercari_url',this.value)"></div>
+    <div class="editrow"><label>中古価格¥</label>
+      <input type="number" value="${esc(pv)}" placeholder="駿河屋の中古最安"
+        oninput="setPaste(${r._id},'price_used',this.value)"></div>
+    <div class="editrow"><label>画像追加</label>
+      <input type="text" value="" placeholder="画像URLを貼ってEnterで追加"
+        onkeydown="if(event.key==='Enter'){addImg(${r._id},this.value);this.value='';}"></div>
+  </div>`;
+}
+// ▲▲▲ DEBUG-ONLY ここまで ▲▲▲
+
+function noimgInner(type){ return `<span class="ni-ic">${TYPE_ICON[type]||"✨"}</span><span class="ni-tx">準備中</span>`; }
+// 画像読み込み失敗時：プレースホルダに差替（グローバル・onerrorから呼ぶ）
+function imgFail(img, type){ const d=document.createElement("div"); d.className="noimg"; d.innerHTML=noimgInner(type); img.replaceWith(d); }
+function imgColHtml(r){
+  const imgs=activeImages(r);
+  if(!showImagesNow() || !imgs.length){
+    return `<div class="imgcol"><div class="noimg">${noimgInner(r.type)}</div></div>`;
+  }
+  const more = imgs.length>1 ? `<span class="more">+${imgs.length-1}</span>` : "";
+  const src = isSurugayaImg(imgs[0]) ? `<span class="srclab">駿河屋</span>` : "";  // 出典（駿河屋フォールバック）
+  return `<div class="imgcol"><div class="imgwrap">
+    <img class="thumb" src="${esc(imgs[0])}" alt="${esc(r.name)}" loading="lazy" referrerpolicy="no-referrer"
+      onclick="openLb('${encodeURIComponent(r._key)}',0)"
+      onerror="this.onerror=null;imgFail(this,'${r.type}')">
+    ${src}${more}</div></div>`;
+}
+
+function render(){
+  document.getElementById("recoNote").style.display = state.sort==="reco"?"block":"none";
+  document.getElementById("editNote").style.display = state.debug?"block":"none";
+  { const eb=document.getElementById("exportBtn"); if(eb) eb.style.display = state.debug?"inline-flex":"none"; }
+  // 編集用「画像なしのみ」フィルタのカウント更新（画像=公式/手動/駿河屋いずれも無い商品）
+  const nmc=document.getElementById("noimgCount");
+  if(nmc) nmc.textContent = "("+DATA.filter(x=>!activeImages(x).length).length+")";
+  const qc=document.getElementById("queueCount");
+  if(qc) qc.textContent = "("+QUEUE.filter(c=>qDecOf(c.candidate_id)!=="rejected").length+")";
+  if(state.debug && state.showQueue){ renderQueue(); return; }  // 新商品候補モード
+  document.getElementById("list").classList.remove("qmode");
+  const rows=sortRows(DATA.filter(match));
+  document.getElementById("cn").textContent=rows.length;
+  document.getElementById("cl").textContent=`件表示 / 全${DATA.length}件`;
+  const list=document.getElementById("list");
+  if(!rows.length){ list.innerHTML='<div class="empty"><b>該当なし</b>条件を緩めてみて。種別チップを外すと戻る。</div>'; return; }
+  list.innerHTML=rows.map(r=>{
+    const ft=r.figure_type?`<span class="ftag">${esc(r.figure_type)}</span>`:"";
+    const variant=r.variant?`<span class="var">${esc(r.variant)}</span>`:"";
+    const chBadge=(state.char.size!==1)?`<span class="ch ${CHAR_CLASS[r.character]||""}">${esc(r.character)}</span>`:"";
+    const meta=[]; if(r.release)meta.push("発売 "+esc(r.release)); if(r.shop)meta.push(esc(r.shop));
+    const badges=[];
+    const rstat=releaseStatus(r);
+    if(rstat==="reserve") badges.push(`<span class="b reserve">🔜 予約受付</span>`);
+    else if(rstat==="newin") badges.push(`<span class="b newin">✨ 新着</span>`);
+    (r.route||[]).forEach(x=>badges.push(`<span class="b route">${esc(x)}</span>`));
+    (r.live||[]).forEach(x=>badges.push(`<span class="b live">🎤 ${esc(x)}</span>`));
+    if(r.kuji_name){ let k=r.kuji_name.replace("一番くじ 原神","一番くじ"); if(r.prize_rank)k+=" "+r.prize_rank;
+      badges.push(`<span class="b kuji">🎯 ${esc(k)}</span>`); }
+    if(r.category&&r.category!=="通常")badges.push(`<span class="b cat">${esc(r.category)}</span>`);
+    if(r.flag==="hold")badges.push(`<span class="b hold">要確認</span>`);
+    const pu=effPriceUsed(r);
+    const usedCell = pu==null
+      ? `<div class="pcell ref"><div class="pl">新品定価(参考)</div>${r.price_new!=null?`<span class="pv">¥${r.price_new.toLocaleString("ja-JP")}</span>`:'<span class="pv none">—</span>'}</div>`
+      : `<div class="pcell used"><div class="pl">中古相場</div>${yen(pu)}</div>`;
+    const mainCell = pu==null
+      ? `<div class="pcell used"><div class="pl">中古相場</div><span class="pv none">未収集</span></div>`
+      : `<div class="pcell ref"><div class="pl">新品定価(参考)</div>${r.price_new!=null?`<span class="pv">¥${r.price_new.toLocaleString("ja-JP")}</span>`:'<span class="pv none">—</span>'}</div>`;
+    return `<div class="row${r._own==="have"?" have":""}">
+      ${imgColHtml(r)}
+      <div class="rbody">
+        <div class="top"><div class="nm">${chBadge}${fmtName(r.name)}${variant}${ft}</div><span class="tag">${esc(subtypeOf(r)||TYPE_LABEL[r.type]||r.type)}</span></div>
+        <div class="prices">${usedCell}${mainCell}</div>
+        ${meta.length?`<div class="meta">${meta.map(m=>`<span>${m}</span>`).join("")}</div>`:""}
+        ${badges.length?`<div class="badges">${badges.join("")}</div>`:""}
+        <div class="actions">
+          <button class="own" aria-pressed="${r._own==="have"}" onclick="setOwn(${r._id},'have')">${r._own==="have"?"✓ 持ってる":"持ってる"}</button>
+          <button class="own want" aria-pressed="${r._own==="want"}" onclick="setOwn(${r._id},'want')">${r._own==="want"?"★ 欲しい":"欲しい"}</button>
+          <div class="actR">
+            ${officialBtn(r)}
+            ${officialStoreBtn(r)}
+            <a class="cta sg" href="${esc(surugayaUrl(r))}" target="_blank" rel="noopener sponsored" onclick="bump(${r._id})">駿河屋</a>
+            ${affiliateBtns(r)}
+            ${mercariBtn(r)}
+          </div>
+        </div>
+        ${editPanel(r)}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function setOwn(id,kind){ const r=DATA.find(x=>x._id===id); if(!r)return;
+  r._own = (r._own===kind)?null:kind; persistOwn(); buildProg(); render(); }
+function bump(id){ const r=DATA.find(x=>x._id===id); if(r){ r._clicks++; persistClicks(); render(); } }
+
+// ▼▼▼ DEBUG-ONLY：新商品候補タブ（承認/統合/却下）。公開前に削除 ▼▼▼
+function renderQueue(){
+  const list=document.getElementById("list"); list.classList.add("qmode");
+  const cands=QUEUE.filter(c=>qDecOf(c.candidate_id)!=="rejected" || true); // 却下も薄く残す（取り消せるように）
+  document.getElementById("cn").textContent=QUEUE.filter(c=>!qDecOf(c.candidate_id)).length;
+  document.getElementById("cl").textContent=`件 未処理 / 候補${QUEUE.length}件`;
+  if(!QUEUE.length){ list.innerHTML='<div class="qnote">新商品候補はありません。駿河屋を検索して取り込むと、ここに未収録商品が並びます（設計書v2.7）。</div>'; return; }
+  const note='<div class="qnote">📥 駿河屋から見つかった<b>DB未収録の候補</b>です。✔承認＝新商品として追加／↪統合＝既存商品に駿河屋情報だけ足す／✖却下。決定は「⬇裁定を書き出す」で queue_decisions として出力→ビルドで反映。</div>';
+  list.innerHTML = note + cands.map(c=>{
+    const dec=qDecOf(c.candidate_id);
+    const img = c.image_url ? `<div class="imgcol"><div class="imgwrap"><img class="thumb" src="${esc(c.image_url)}" alt="${esc(c.name_raw)}" referrerpolicy="no-referrer" onerror="imgFail(this,'${c.type_guess||"other"}')"><span class="srclab">駿河屋</span></div></div>` : `<div class="imgcol"><div class="noimg">${noimgInner(c.type_guess||"other")}</div></div>`;
+    const meta=[]; if(c.release)meta.push("発売 "+esc(c.release)); if(c.maker)meta.push(esc(c.maker));
+    if(c.price_used!=null)meta.push("中古¥"+c.price_used.toLocaleString("ja-JP"));
+    const badges=[];
+    badges.push(`<span class="qb gd">${esc(TYPE_LABEL[c.type_guess]||c.type_guess||"?")}</span>`);
+    if(c.character_guess)badges.push(`<span class="qb">${esc(c.character_guess)}</span>`);
+    if(c.matched_product_key)badges.push(`<span class="qb mt">既存一致</span>`);
+    if(c.soldout)badges.push(`<span class="qb so">品切れ</span>`);
+    const done = dec ? `<span class="qdon" style="color:${dec==='rejected'?'var(--want)':dec==='merged'?'var(--pink-ink)':'var(--have)'}">${dec==='approved'?'✔承認済み':dec==='merged'?'↪統合済み':'✖却下'} <button class="rj" onclick="qSet('${c.candidate_id}',null)">取消</button></span>` : "";
+    const acts = dec ? "" : `<div class="qact">
+        <button class="ap" onclick="qSet('${c.candidate_id}','approved')">✔ 承認（新商品）</button>
+        ${c.matched_product_key?`<button class="mg" onclick="qSet('${c.candidate_id}','merged')">↪ 既存に統合</button>`:""}
+        <button class="rj" onclick="qSet('${c.candidate_id}','rejected')">✖ 却下</button></div>`;
+    return `<div class="qcard${dec?' dim':''}">${img}<div class="qbody">
+      <div class="qnm">${fmtName(c.name_raw)}</div>
+      ${meta.length?`<div class="qmeta">${meta.map(m=>`<span>${m}</span>`).join("")}</div>`:""}
+      <div class="qbadges">${badges.join("")}</div>
+      ${c.provenance?`<div class="qmeta" style="opacity:.7">出典: ${esc(c.provenance)}</div>`:""}
+      ${acts}${done}
+    </div></div>`;
+  }).join("");
+}
+function qSet(cid,decision){ setQDec(cid,decision); render(); }
+// ▲▲▲ DEBUG-ONLY ここまで ▲▲▲
+
+// --- 編集: 貼付・画像追加 ---
+function setPaste(id,field,val){ const r=DATA.find(x=>x._id===id); if(!r)return;
+  const s=pasteStore(); const o=s[r._key]||{}; o[field]=val; s[r._key]=o; savePaste(s); }
+function addImg(id,url){ url=(url||"").trim(); if(!url)return; const r=DATA.find(x=>x._id===id); if(!r)return;
+  const s=pasteStore(); const o=s[r._key]||{}; o.images_added=(o.images_added||[]); if(!o.images_added.includes(url)){o.images_added.push(url);}
+  s[r._key]=o; savePaste(s); render(); }
+function delImg(key,url){ const s=imgDelStore(); const a=s[key]||[]; if(!a.includes(url))a.push(url); s[key]=a; saveImgDel(s); }
+
+// --- ライトボックス ---
+let _lb={key:null,imgs:[],idx:0};
+function openLb(encKey,idx){
+  const key=decodeURIComponent(encKey);
+  const r=DATA.find(x=>x._key===key); if(!r) return;
+  _lb.key=key; _lb.imgs=activeImages(r); _lb.idx=idx||0;
+  if(!_lb.imgs.length){ return; }
+  const lb=document.getElementById("lb");
+  lb.classList.toggle("editing", !!state.debug);
+  document.getElementById("lbCap").textContent=r.name;
+  showLb(); lb.classList.add("open");
+}
+function showLb(){
+  if(!_lb.imgs.length){ closeLb(); return; }
+  if(_lb.idx<0)_lb.idx=_lb.imgs.length-1; if(_lb.idx>=_lb.imgs.length)_lb.idx=0;
+  document.getElementById("lbImg").src=_lb.imgs[_lb.idx];
+  document.getElementById("lbCount").textContent=`${_lb.idx+1} / ${_lb.imgs.length}`;
+  const nav=_lb.imgs.length>1?"":"none";
+  document.getElementById("lbPrev").style.display=nav;
+  document.getElementById("lbNext").style.display=nav;
+}
+function closeLb(){ document.getElementById("lb").classList.remove("open"); }
+document.getElementById("lbClose").onclick=closeLb;
+document.getElementById("lbPrev").onclick=()=>{ _lb.idx--; showLb(); };
+document.getElementById("lbNext").onclick=()=>{ _lb.idx++; showLb(); };
+document.getElementById("lb").addEventListener("click",e=>{ if(e.target.id==="lb") closeLb(); });
+document.getElementById("lbDel").onclick=()=>{
+  const url=_lb.imgs[_lb.idx]; if(!url)return;
+  delImg(_lb.key,url);
+  _lb.imgs.splice(_lb.idx,1);
+  if(!_lb.imgs.length){ closeLb(); render(); return; }
+  showLb(); render();
+};
+document.addEventListener("keydown",e=>{
+  if(!document.getElementById("lb").classList.contains("open"))return;
+  if(e.key==="Escape")closeLb(); else if(e.key==="ArrowLeft"){_lb.idx--;showLb();} else if(e.key==="ArrowRight"){_lb.idx++;showLb();}
+});
+
+// --- 編集モードトグル & エクスポート ---
+document.addEventListener("click",function(e){
+  if(e.target && e.target.id==="debugBtn"){
+    state.debug=!state.debug;
+    e.target.textContent = state.debug ? "🔧 編集ON" : "🔒 公開ﾌﾟﾚﾋﾞｭｰ";
+    if(!state.debug){ state.noimg=false; state.showQueue=false;
+      ["noimgBtn","queueBtn"].forEach(id=>{const b=document.getElementById(id); if(b)b.setAttribute("aria-pressed","false");}); }  // 公開表示に切替時は編集用フィルタ解除
+    render();
+  }
+});
+// 編集用「画像なしのみ表示」トグル
+(function(){ const b=document.getElementById("noimgBtn"); if(b) b.onclick=()=>{
+  state.noimg=!state.noimg; b.setAttribute("aria-pressed", state.noimg?"true":"false");
+  if(state.noimg){ state.showQueue=false; const q=document.getElementById("queueBtn"); if(q)q.setAttribute("aria-pressed","false"); }
+  render(); }; })();
+// 「新商品候補」トグル
+(function(){ const b=document.getElementById("queueBtn"); if(b) b.onclick=()=>{
+  state.showQueue=!state.showQueue; b.setAttribute("aria-pressed", state.showQueue?"true":"false");
+  if(state.showQueue){ state.noimg=false; const n=document.getElementById("noimgBtn"); if(n)n.setAttribute("aria-pressed","false"); }
+  render(); }; })();
+// ▼▼▼ DEBUG-ONLY：manual_overrides.json エクスポート。公開前に exportBtn とこの関数を削除 ▼▼▼
+function exportOverrides(){
+  const del=imgDelStore(), paste=pasteStore();
+  const keys=new Set([...Object.keys(del),...Object.keys(paste)]);
+  const products={};
+  keys.forEach(k=>{
+    const o={}; const p=paste[k]||{};
+    if(del[k]&&del[k].length) o.images_deleted=del[k];
+    if(p.images_added&&p.images_added.length) o.images_added=p.images_added;
+    ["surugaya_url","mercari_url"].forEach(f=>{ if(p[f]!=null&&p[f]!=="") o[f]=p[f]; });
+    if(p.price_used!=null&&p.price_used!==""){ o.price_used=Number(p.price_used); o.price_captured_at=todayStr(); }
+    if(Object.keys(o).length) products[k]=o;
+  });
+  const queue_decisions=qDecStore();  // {candidate_id: "approved"|"merged"|"rejected"}
+  const out={exported_at:new Date().toISOString(), note:"build_html_v27.py が 02_classified/manual_overrides.json として最優先マージ。queue_decisions は discovery_queue の承認/統合/却下。", products, queue_decisions};
+  const blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="manual_overrides.json"; document.body.appendChild(a); a.click(); a.remove();
+}
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+{ const eb=document.getElementById("exportBtn"); if(eb) eb.onclick=exportOverrides; }
+// ▲▲▲ DEBUG-ONLY ここまで ▲▲▲
+
+document.querySelectorAll("#ownSeg button").forEach(b=>{
+  b.onclick=()=>{ state.own=b.dataset.own;
+    document.querySelectorAll("#ownSeg button").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+    render(); };
+});
+document.getElementById("sortSel").onchange=e=>{state.sort=e.target.value;render();};
+document.getElementById("clearBtn").onclick=()=>{
+  ["char","type","ft","route","live","kuji","cat"].forEach(k=>state[k].clear());
+  state.own=""; state.sort="reco"; state.noimg=false;
+  const nb=document.getElementById("noimgBtn"); if(nb)nb.setAttribute("aria-pressed","false");
+  document.getElementById("sortSel").value="reco";
+  document.querySelectorAll("#ownSeg button").forEach(x=>x.setAttribute("aria-pressed", x.dataset.own===""?"true":"false"));
+  buildChars(); buildTypes(); buildProg(); buildAdv(); render();
+};
+buildChars(); buildTypes(); buildProg(); buildAdv(); render();
+</script>
+</body>
+</html>

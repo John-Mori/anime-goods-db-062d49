@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>オタクグッズDB｜アクスタ・ぬいぐるみ・フィギュアの作品別まとめ</title>
+<meta name="description" content="23作品・1,300件超のキャラクターグッズ（アクリルスタンド／ぬいぐるみ／フィギュア）を作品別・キャラ別に一覧できるデータベース。発売日・価格・予約情報つき。">
+<meta property="og:title" content="オタクグッズDB｜アクスタ・ぬいぐるみ・フィギュアの作品別まとめ">
+<meta property="og:description" content="23作品・1,300件超のキャラクターグッズを作品別・キャラ別に一覧。発売日・価格・予約情報つき。">
+<meta property="og:type" content="website">
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#e9f2fb; --ink:#26303f; --faint:#7b8794; --line:#d7e3f0; --line2:#c7d6e5;
+    --card:#fff; --gold:#e0920f; --gold2:#ef7620; --pink:#e5468f;
+  }
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
+    background:linear-gradient(180deg,#cfe6fb 0%,#e9f2fb 42%,#fdf1e6 100%)}
+  .bgfx .glow{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5}
+  .bgfx .g1{width:60vw;height:40vh;top:-10vh;left:-10vw;background:radial-gradient(circle,#ffd68a,transparent 70%)}
+  .bgfx .g2{width:50vw;height:36vh;bottom:-8vh;right:-8vw;background:radial-gradient(circle,#ffc3dd,transparent 70%)}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 16px 40px}
+  header{padding:30px 0 14px}
+  .brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h1{margin:0;font-size:26px;letter-spacing:.01em;
+    background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h1 .sp{color:var(--pink);-webkit-text-fill-color:var(--pink)}
+  .pr{margin-left:auto;font-size:10px;font-weight:800;color:#7a4a00;background:#ffe9b0;
+    border:1px solid #e0a83d;border-radius:4px;padding:2px 7px;letter-spacing:.04em;white-space:nowrap}
+  .lead{margin:10px 0 0;font-size:13px;color:var(--faint);max-width:62ch}
+  .stats{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:12px}
+  .stat b{font-size:16px;color:var(--gold);margin-right:3px}
+  .searchbar{margin:20px 0 6px;position:relative}
+  .searchbar input{width:100%;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--card);
+    font-size:15px;color:var(--ink);font-family:inherit}
+  .searchbar input:focus{outline:2px solid var(--gold);outline-offset:-1px}
+  .sresult{margin-top:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:none}
+  .sresult.on{display:block}
+  .sr{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line);text-decoration:none;color:inherit}
+  .sr:first-child{border-top:0}
+  .sr:hover{background:#f4f9ff}
+  .sr .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+  .sr .cn{font-weight:700;font-size:13px}
+  .sr .wn{font-size:11px;color:var(--faint);margin-left:auto;text-align:right}
+  .sr .num{font-size:11px;color:var(--faint);background:#eef4fb;border-radius:4px;padding:1px 6px}
+  .genre-nav{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 12px}
+  .gchip{border:1px solid var(--line2);background:var(--card);border-radius:999px;padding:5px 13px;font-size:12px;
+    cursor:pointer;font-family:inherit;color:var(--ink)}
+  .gchip[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border-color:var(--gold)}
+  .grid{display:grid;gap:12px;grid-template-columns:1fr}
+  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+  @media(min-width:1000px){.grid{grid-template-columns:1fr 1fr 1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden;
+    text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:transform .12s,box-shadow .12s}
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(40,70,110,.13)}
+  .card .bar{height:5px}
+  .card .body{padding:13px 14px 14px;flex:1;display:flex;flex-direction:column}
+  .card .genre{font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.06em}
+  .card .name{font-size:15px;font-weight:800;margin:3px 0 7px;line-height:1.35}
+  .card .nums{display:flex;gap:6px;margin-bottom:7px}
+  .card .n{background:#eef4fb;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700}
+  .card .n b{color:var(--gold)}
+  .card .types{font-size:10.5px;color:var(--faint);margin-bottom:6px}
+  .card .chars{font-size:10.5px;color:var(--faint);line-height:1.5;margin-top:auto;
+    border-top:1px dashed var(--line);padding-top:7px}
+  .foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line2);font-size:10.5px;color:var(--faint);line-height:1.75}
+  .foot strong{color:var(--ink);font-weight:800}
+  .foot .meta{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:9.5px;opacity:.85}
+</style>
+</head>
+<body>
+<div class="bgfx"><div class="glow g1"></div><div class="glow g2"></div></div>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>オタク<span class="sp">グッズDB</span></h1>
+      <span class="pr">広告・PR</span>
+    </div>
+    <p class="lead">
+      アクリルスタンド・ぬいぐるみ・フィギュアを<strong>作品別／キャラ別</strong>に一覧できるデータベース。
+      全データはメーカー・公式ショップの実ページを確認して収録しています。
+    </p>
+    <div class="stats">
+      <div class="stat"><b>23</b>作品</div>
+      <div class="stat"><b>1,394</b>件</div>
+      <div class="stat"><b>313</b>キャラ</div>
+    </div>
+  </header>
+
+  <div class="searchbar">
+    <input type="search" id="q" placeholder="キャラ名で検索（例: 時崎狂三、ホシノ、霊夢）" autocomplete="off" aria-label="キャラ名で横断検索">
+    <div class="sresult" id="sr"></div>
+  </div>
+
+  <div class="genre-nav" id="gnav"></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="foot">
+    <strong>【広告について】</strong>本サイトはアフィリエイトプログラム（Amazonアソシエイト・楽天アフィリエイト・バリューコマース等）を利用しており、商品リンクを経由した購入により当サイトが収益を得る場合があります。<br>
+    <strong>【価格・在庫について】</strong>掲載の価格・発売日・在庫状況は各取得時点の情報です。最新かつ正確な情報は必ず各販売サイト・公式サイトでご確認ください。<br>
+    <strong>【免責】</strong>掲載情報の正確性・完全性を保証するものではなく、本サイトの情報により生じた損害について責任を負いかねます。プライズ品・イベント限定品など新品購入ができない商品も情報として収録しています。<br>
+    <strong>【プライバシー】</strong>本サイトはアクセス解析およびアフィリエイトのためにCookieを使用する場合があります。ブラウザ設定で無効化できます。当サイトは個人情報の入力を求めません。<br>
+    <strong>【権利表記】</strong>作品名・キャラクター名・商品名は各権利者の商標または登録商標です。本サイトは非公式のファンによる情報サイトです。
+    <div class="meta">データ生成: 2026-07-07</div>
+  </div>
+</div>
+
+<script>
+const CARDS = [{"key":"gakumas","name":"学園アイドルマスター","genre":"アイドル","color":"#e0920f","file":"gakumas_goods_db_v28_public.html","items":212,"chars":13,"types":"アクスタ32 / ミニアクスタ21 / ぬいぐるみ20 / フィギュア9 / ほか130","char_sample":"倉本千奈・十王星南・姫崎莉波・月村手毬・有村麻央・秦谷美鈴…"},{"key":"umamusume","name":"ウマ娘 プリティーダービー","genre":"ゲーム","color":"#7ab5e0","file":"umamusume_goods_db_v1_public.html","items":340,"chars":103,"types":"アクスタ168 / フィギュア133 / ぬいぐるみ33 / ミニアクスタ6","char_sample":"アイネスフウジン・アグネスタキオン・アグネスデジタル・アストンマーチャン・アドマイヤベガ・アーモンドアイ…"},{"key":"mlst","name":"アイドルマスター ミリオンライブ！","genre":"アイドル","color":"#f0a020","file":"mlst_goods_db_v1_public.html","items":55,"chars":11,"types":"アクスタ20 / フィギュア17 / ぬいぐるみ17 / ミニアクスタ1","char_sample":"七尾百合子・北沢志保・所恵美・星井美希・最上静香・望月杏奈…"},{"key":"idoly","name":"IDOLY PRIDE","genre":"アイドル","color":"#7b6fb8","file":"idoly_goods_db_v1_public.html","items":22,"chars":10,"types":"アクスタ17 / ミニアクスタ3 / ぬいぐるみ2","char_sample":"伊吹渚・佐伯遙子・兵藤雫・奥山すみれ・小美山愛・川咲さくら…"},{"key":"bluearchive","name":"ブルーアーカイブ","genre":"ゲーム","color":"#5aa0d5","file":"bluearchive_goods_db_v1_public.html","items":92,"chars":27,"types":"フィギュア54 / ぬいぐるみ20 / アクスタ18","char_sample":"アカネ・アコ・アズサ・アヤネ・アリス・アル…"},{"key":"priconne","name":"プリンセスコネクト！Re:Dive","genre":"ゲーム","color":"#ef5566","file":"priconne_goods_db_v1_public.html","items":56,"chars":23,"types":"アクスタ30 / フィギュア20 / ぬいぐるみ5 / ミニアクスタ1","char_sample":"アオイ・イオ・キャル・キョウカ・クウカ・クリスティーナ…"},{"key":"genshin","name":"原神","genre":"ゲーム","color":"#4a90d9","file":"genshin_goods_db_v1_public.html","items":46,"chars":14,"types":"フィギュア21 / アクスタ16 / ぬいぐるみ9","char_sample":"ナヒーダ・ナヴィア・パイモン・フリーナ・八重神子・刻晴…"},{"key":"wuwa","name":"鳴潮","genre":"ゲーム","color":"#C8102E","file":"wuwa_goods_db_v1_public.html","items":29,"chars":10,"types":"アクスタ13 / フィギュア10 / ぬいぐるみ5 / ミニアクスタ1","char_sample":"カカロ・ショアキーパー・ツバキ・ヴェリーナ・今汐・吟霖…"},{"key":"zzz","name":"ゼンレスゾーンゼロ","genre":"ゲーム","color":"#4B3F72","file":"zzz_goods_db_v1_public.html","items":36,"chars":10,"types":"アクスタ19 / フィギュア17","char_sample":"0号アンビー・11号・イヴリン・シェヴァリエ・エレン・ジョー・ジェーン・ドゥ・ビビアン・バンシー…"},{"key":"nikke","name":"勝利の女神：NIKKE","genre":"ゲーム","color":"#FF4FA0","file":"nikke_goods_db_v1_public.html","items":46,"chars":10,"types":"フィギュア28 / アクスタ14 / ぬいぐるみ4","char_sample":"アニス・ドロシー・ノワール・ブラン・プリヴァティ・マリアン…"},{"key":"fgo","name":"Fate/Grand Order","genre":"ゲーム","color":"#f0c419","file":"fgo_goods_db_v1_public.html","items":38,"chars":8,"types":"フィギュア30 / ぬいぐるみ5 / アクスタ3","char_sample":"アルトリア・ペンドラゴン〔オルタ〕・エミヤ・ジャンヌ・ダルク・セイバー・ネロ・クラウディウス・マシュ・キリエライト…"},{"key":"granblue","name":"グランブルーファンタジー","genre":"ゲーム","color":"#4a6fa5","file":"granblue_goods_db_v1_public.html","items":52,"chars":18,"types":"アクスタ24 / フィギュア15 / ぬいぐるみ10 / ミニアクスタ3","char_sample":"アニラ・イオ・カタリナ・カリオストロ・グラン・サンダルフォン…"},{"key":"azurlane","name":"アズールレーン","genre":"ゲーム","color":"#3a5f8a","file":"azurlane_goods_db_v1_public.html","items":37,"chars":8,"types":"フィギュア22 / ぬいぐるみ8 / アクスタ7","char_sample":"エンタープライズ・プリンツ・オイゲン・ベルファスト・ラフィー・大鳳・愛宕…"},{"key":"touhou","name":"東方Project","genre":"ゲーム","color":"#e83a3a","file":"touhou_goods_db_v1_public.html","items":48,"chars":8,"types":"フィギュア24 / ぬいぐるみ15 / アクスタ9","char_sample":"チルノ・フランドール・スカーレット・レミリア・スカーレット・十六夜咲夜・博麗霊夢・西行寺幽々子…"},{"key":"oshi","name":"【推しの子】","genre":"アニメ","color":"#ee4d9b","file":"oshi_goods_db_v1_public.html","items":48,"chars":6,"types":"フィギュア29 / アクスタ12 / ぬいぐるみ6 / ミニアクスタ1","char_sample":"MEMちょ・星野アイ・星野アクア・星野ルビー・有馬かな・黒川あかね"},{"key":"bocchi","name":"ぼっち・ざ・ろっく！","genre":"アニメ","color":"#ef8fb8","file":"bocchi_goods_db_v1_public.html","items":21,"chars":4,"types":"フィギュア12 / アクスタ4 / ぬいぐるみ4 / ミニアクスタ1","char_sample":"伊地知虹夏・喜多郁代・山田リョウ・後藤ひとり"},{"key":"lycoreco","name":"リコリス・リコイル","genre":"アニメ","color":"#e91e63","file":"lycoreco_goods_db_v1_public.html","items":20,"chars":4,"types":"フィギュア9 / アクスタ6 / ぬいぐるみ4 / ミニアクスタ1","char_sample":"クルミ・ミズキ・井ノ上たきな・錦木千束"},{"key":"gotoubun","name":"五等分の花嫁","genre":"アニメ","color":"#ff8fc4","file":"gotoubun_goods_db_v1_public.html","items":27,"chars":5,"types":"フィギュア16 / アクスタ7 / ぬいぐるみ4","char_sample":"中野一花・中野三玖・中野二乃・中野五月・中野四葉"},{"key":"kaguya","name":"超かぐや姫！","genre":"アニメ","color":"#C9A9E0","file":"kaguya_goods_db_v1_public.html","items":15,"chars":3,"types":"アクスタ10 / ぬいぐるみ5","char_sample":"かぐや・月見ヤチヨ・酒寄彩葉"},{"key":"datealive","name":"デート・ア・ライブ","genre":"アニメ","color":"#7c3aed","file":"datealive_goods_db_v1_public.html","items":43,"chars":9,"types":"フィギュア25 / アクスタ15 / ぬいぐるみ3","char_sample":"五河琴里・八舞夕弦・八舞耶倶矢・四糸乃・夜刀神十香・星宮六喰…"},{"key":"rezero","name":"Re:ゼロから始める異世界生活","genre":"アニメ","color":"#9d8fc9","file":"rezero_goods_db_v1_public.html","items":38,"chars":3,"types":"フィギュア27 / アクスタ8 / ぬいぐるみ3","char_sample":"エミリア・ラム・レム"},{"key":"tensura","name":"転生したらスライムだった件","genre":"アニメ","color":"#7fd6cf","file":"tensura_goods_db_v1_public.html","items":47,"chars":4,"types":"フィギュア34 / アクスタ7 / ぬいぐるみ5 / ミニアクスタ1","char_sample":"シオン・シュナ・ミリム・リムル"},{"key":"sao","name":"ソードアート・オンライン","genre":"アニメ","color":"#d98a5a","file":"sao_goods_db_v1_public.html","items":26,"chars":2,"types":"フィギュア22 / ぬいぐるみ2 / アクスタ2","char_sample":"アスナ・アリス"}];
+let SEARCH = [];
+let genre = "すべて";
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderGnav(){
+  const genres = ["すべて", ...Array.from(new Set(CARDS.map(c=>c.genre)))];
+  document.getElementById('gnav').innerHTML = genres.map(g=>
+    `<button class="gchip" data-g="${esc(g)}" aria-pressed="${g===genre}">${esc(g)}${g!=="すべて"?`（${CARDS.filter(c=>c.genre===g).length}）`:`（${CARDS.length}）`}</button>`
+  ).join('');
+  document.querySelectorAll('.gchip').forEach(b=>b.onclick=()=>{ genre=b.dataset.g; renderGnav(); renderGrid(); });
+}
+
+function renderGrid(){
+  const list = genre==="すべて" ? CARDS : CARDS.filter(c=>c.genre===genre);
+  document.getElementById('grid').innerHTML = list.map(c=>`
+    <a class="card" href="${esc(c.file)}">
+      <div class="bar" style="background:linear-gradient(90deg,${esc(c.color)},${esc(c.color)}88)"></div>
+      <div class="body">
+        <div class="genre">${esc(c.genre)}</div>
+        <div class="name">${esc(c.name)}</div>
+        <div class="nums"><span class="n"><b>${c.items}</b>件</span><span class="n"><b>${c.chars}</b>キャラ</span></div>
+        <div class="types">${esc(c.types)}</div>
+        <div class="chars">${esc(c.char_sample)}</div>
+      </div>
+    </a>`).join('');
+}
+
+function renderSearch(v){
+  const box = document.getElementById('sr');
+  const q = v.trim();
+  if(!q){ box.classList.remove('on'); box.innerHTML=''; return; }
+  const hits = SEARCH.filter(s => s.c.includes(q) || s.w.includes(q) || (s.k && s.k.includes(q))).slice(0, 12);
+  if(!hits.length){
+    box.classList.add('on');
+    box.innerHTML = `<div class="sr" style="color:var(--faint)">該当なし</div>`;
+    return;
+  }
+  box.classList.add('on');
+  box.innerHTML = hits.map(s=>`
+    <a class="sr" href="${esc(s.u||s.f)}">
+      <span class="dot" style="background:${esc(s.col)}"></span>
+      <span class="cn">${esc(s.c)}</span>
+      <span class="num">${s.n}件</span>
+      <span class="wn">${esc(s.w)}${s.u?' ›':''}</span>
+    </a>`).join('');
+}
+
+fetch('portal_search.json').then(r=>r.json()).then(j=>{ SEARCH=j; }).catch(()=>{});
+document.getElementById('q').addEventListener('input', e=>renderSearch(e.target.value));
+renderGnav(); renderGrid();
+</script>
+</body>
+</html>
